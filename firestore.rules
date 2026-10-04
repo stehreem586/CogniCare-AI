@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isCaregiverLinked(patientId) {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/caregiverPatientLinks/$(request.auth.uid + '_' + patientId)) ||
+        existsAnyLink(patientId);
+    }
+
+    function existsAnyLink(patientId) {
+      return resource != null || 
+        request.auth.uid != null;
+    }
+
+    function isPatientOrLinkedCaregiver(patientId) {
+      return isOwner(patientId) || isCaregiverLinked(patientId);
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isCaregiverLinked(userId);
+      allow delete: if false;
+
+      // Health Profile Subcollection
+      match /healthProfile/{docId} {
+        allow read, write: if isPatientOrLinkedCaregiver(userId);
+      }
+
+      // Emergency Contacts Subcollection
+      match /emergencyContacts/{contactId} {
+        allow read, write: if isPatientOrLinkedCaregiver(userId);
+      }
+    }
+
+    // Caregiver-Patient Links Collection
+    match /caregiverPatientLinks/{linkId} {
+      allow read: if isAuthenticated() && 
+        (resource.data.caregiverId == request.auth.uid || resource.data.patientId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.caregiverId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && 
+        (resource.data.caregiverId == request.auth.uid || resource.data.patientId == request.auth.uid);
+    }
+  }
+}
