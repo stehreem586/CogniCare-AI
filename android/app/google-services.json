@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "364043557479",
+    "project_id": "cognicare-ai",
+    "storage_bucket": "cognicare-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364043557479:android:5f88b6630cc00c392c92c2",
+        "android_client_info": {
+          "package_name": "com.example.cognicare_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtYMBE7Ly2a6Dz0PLBm4BSXQT4Pul6jRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
