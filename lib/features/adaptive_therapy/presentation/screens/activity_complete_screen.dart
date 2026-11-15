@@ -9,10 +9,12 @@ class ActivityCompleteScreen extends StatelessWidget {
     super.key,
     required this.onViewNext,
     required this.onBackHome,
+    this.result,
   });
 
   final VoidCallback onViewNext;
   final VoidCallback onBackHome;
+  final TherapyActivityResult? result;
 
   @override
   Widget build(BuildContext context) {
@@ -34,57 +36,52 @@ class ActivityCompleteScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'You completed the relaxation exercise.',
+              Text(
+                result == null
+                    ? 'You completed the relaxation exercise.'
+                    : 'You completed ${result!.activityTitle}.',
                 style: TextStyle(color: TherapyColors.body, fontSize: 14.5),
               ),
-              const SizedBox(height: 24),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Your Current Emotion',
-                  style: TextStyle(
-                    color: TherapyColors.navy,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
+              if (result != null) ...[
+                const SizedBox(height: 18),
+                TherapyCard(
+                  color: const Color(0xFFE7F7F1),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.insights_rounded,
+                        color: TherapyColors.tealDark,
+                        size: 34,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Session score',
+                              style: TextStyle(
+                                color: TherapyColors.body,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              '${result!.percentage}%  ·  ${result!.correctAnswers} of ${result!.totalQuestions} correct',
+                              style: const TextStyle(
+                                color: TherapyColors.navy,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TherapyCard(
-                child: Row(
-                  children: [
-                    Container(
-                      width: 54,
-                      height: 54,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE7F7F1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.sentiment_satisfied_alt_rounded, color: TherapyColors.tealDark, size: 30),
-                    ),
-                    const SizedBox(width: 12),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          TherapyMocks.emotion,
-                          style: TextStyle(
-                            color: TherapyColors.navy,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        Text(
-                          'Confidence: ${TherapyMocks.confidence}%',
-                          style: TextStyle(color: TherapyColors.muted, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+              ],
+              const SizedBox(height: 24),
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(

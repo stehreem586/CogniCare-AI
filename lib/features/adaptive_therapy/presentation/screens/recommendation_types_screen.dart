@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+
 import '../../data/mock_therapy_data.dart';
 import '../theme/therapy_colors.dart';
 import '../widgets/therapy_common.dart';
 
 class RecommendationTypesScreen extends StatelessWidget {
-  const RecommendationTypesScreen({super.key, required this.onSelect});
+  const RecommendationTypesScreen({
+    super.key,
+    required this.onSelect,
+    this.items,
+  });
 
   final void Function(TherapyTypeItem item) onSelect;
+  final List<TherapyTypeItem>? items;
 
   @override
   Widget build(BuildContext context) {
+    final sourceItems = items != null && items!.isNotEmpty ? items! : MockTherapyCatalog.types;
+
     return TherapyPage(
       child: SafeArea(
         child: Column(
@@ -54,44 +62,51 @@ class RecommendationTypesScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                itemCount: MockTherapyCatalog.types.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final item = MockTherapyCatalog.types[index];
-                  return TherapyCard(
-                    onTap: () => onSelect(item),
-                    child: Row(
-                      children: [
-                        TherapyIconBubble(kind: item.iconKind, size: 52),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+              child: sourceItems.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No recommendations are available yet.',
+                        style: TextStyle(color: TherapyColors.body),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                      itemCount: sourceItems.length,
+                      separatorBuilder: (context, index) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final item = sourceItems[index];
+                        return TherapyCard(
+                          onTap: () => onSelect(item),
+                          child: Row(
                             children: [
-                              Text(
-                                item.title,
-                                style: const TextStyle(
-                                  color: TherapyColors.navy,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
+                              TherapyIconBubble(kind: item.iconKind, size: 52),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.title,
+                                      style: const TextStyle(
+                                        color: TherapyColors.navy,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      item.subtitle,
+                                      style: const TextStyle(color: TherapyColors.body, fontSize: 13),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                item.subtitle,
-                                style: const TextStyle(color: TherapyColors.body, fontSize: 13),
-                              ),
+                              const Icon(Icons.chevron_right_rounded, color: TherapyColors.muted),
                             ],
                           ),
-                        ),
-                        const Icon(Icons.chevron_right_rounded, color: TherapyColors.muted),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),

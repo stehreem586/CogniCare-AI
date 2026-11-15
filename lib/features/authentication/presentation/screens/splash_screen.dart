@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen>
         if (user.role == 'caregiver') {
           Navigator.of(context).pushReplacementNamed(AppRoutes.caregiverDashboard);
         } else {
-          Navigator.of(context).pushReplacementNamed(AppRoutes.patientProfile);
+          Navigator.of(context).pushReplacementNamed(AppRoutes.adaptiveTherapy);
         }
       } else {
         setState(() {
@@ -118,107 +118,55 @@ class _SplashScreenState extends State<SplashScreen>
                     position: _slideAnimation,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          physics: const ClampingScrollPhysics(),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: constraints.maxHeight,
-                            ),
-                            child: IntrinsicHeight(
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 24),
-                                  const SplashHeaderWidget(),
-                                  const SizedBox(height: 16),
-                                  Expanded(
-                                    child: Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                        child: Image.asset(
-                                          AppAssets.splashIllustration,
-                                          fit: BoxFit.contain,
-                                          width: double.infinity,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return const SizedBox(
-                                              height: 180,
-                                              child: Center(
-                                                child: Icon(
-                                                  Icons.park,
-                                                  size: 80,
-                                                  color: AppColors.brandTeal,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
+                        final compact = constraints.maxHeight < 700;
+                        return Padding(
+                          padding: EdgeInsets.fromLTRB(20, compact ? 12 : 24, 20, compact ? 12 : 20),
+                          child: Column(
+                            children: [
+                              const SplashHeaderWidget(),
+                              SizedBox(height: compact ? 4 : 12),
+                              Flexible(
+                                flex: compact ? 5 : 6,
+                                child: Center(
+                                  child: Image.asset(
+                                    AppAssets.splashIllustration,
+                                    fit: BoxFit.contain,
+                                    width: double.infinity,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(
+                                      Icons.park,
+                                      size: 80,
+                                      color: AppColors.brandTeal,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
+                                ),
+                              ),
+                              SizedBox(height: compact ? 4 : 12),
+                              AppButton(
+                                text: AppStrings.getStarted,
+                                onPressed: _onGetStartedPressed,
+                                height: compact ? 46 : 52,
+                                borderRadius: 26,
+                                fontSize: compact ? 15 : 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              GestureDetector(
+                                onTap: _onSignInPressed,
+                                behavior: HitTestBehavior.opaque,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: compact ? 4 : 8, horizontal: 12),
+                                  child: RichText(
+                                    textAlign: TextAlign.center,
+                                    text: const TextSpan(
+                                      style: TextStyle(fontSize: 14, color: Color(0xFF556B82)),
                                       children: [
-                                        AppButton(
-                                          text: AppStrings.getStarted,
-                                          onPressed: _onGetStartedPressed,
-                                          height: 52,
-                                          borderRadius: 26,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        const SizedBox(height: 18),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pushNamed(
-                                              AppRoutes.adaptiveTherapy,
-                                            );
-                                          },
-                                          child: const Text(
-                                            'Preview Adaptive Therapy (Module 3)',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.primary,
-                                            ),
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: _onSignInPressed,
-                                          behavior: HitTestBehavior.opaque,
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                              horizontal: 12.0,
-                                            ),
-                                            child: RichText(
-                                              textAlign: TextAlign.center,
-                                              text: const TextSpan(
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Color(0xFF556B82),
-                                                ),
-                                                children: [
-                                                  TextSpan(
-                                                    text: AppStrings.alreadyHaveAccount,
-                                                  ),
-                                                  TextSpan(
-                                                    text: AppStrings.signIn,
-                                                    style: TextStyle(
-                                                      color: AppColors.primary,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                        TextSpan(text: AppStrings.alreadyHaveAccount),
+                                        TextSpan(text: AppStrings.signIn, style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         );
                       },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../data/mock_therapy_data.dart';
 import '../theme/therapy_colors.dart';
 import '../widgets/therapy_common.dart';
@@ -12,6 +13,8 @@ class RecommendationHomeScreen extends StatelessWidget {
     required this.onOpenWellness,
     required this.onOpenCognitive,
     required this.onOpenMemory,
+    this.activities,
+    this.recommendedActivity,
   });
 
   final VoidCallback onOpenTypes;
@@ -19,9 +22,14 @@ class RecommendationHomeScreen extends StatelessWidget {
   final VoidCallback onOpenWellness;
   final VoidCallback onOpenCognitive;
   final VoidCallback onOpenMemory;
+  final List<TherapyActivity>? activities;
+  final TherapyActivity? recommendedActivity;
 
   @override
   Widget build(BuildContext context) {
+    final activity = recommendedActivity ??
+        (activities != null && activities!.isNotEmpty ? activities!.first : MockTherapyCatalog.breathing);
+
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -105,19 +113,19 @@ class RecommendationHomeScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text.rich(
+                      Text.rich(
                         TextSpan(
-                          style: TextStyle(color: TherapyColors.body, fontSize: 13.5, height: 1.4),
+                          style: const TextStyle(color: TherapyColors.body, fontSize: 13.5, height: 1.4),
                           children: [
-                            TextSpan(text: 'Based on your current mood '),
+                            const TextSpan(text: 'Based on your current mood '),
                             TextSpan(
-                              text: 'we recommend a Relaxation Exercise',
-                              style: TextStyle(
+                              text: 'we recommend a ${activity.category} practice',
+                              style: const TextStyle(
                                 color: TherapyColors.navy,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            TextSpan(text: ' to help you feel calmer.'),
+                            const TextSpan(text: ' to support your routine.'),
                           ],
                         ),
                       ),
@@ -165,33 +173,33 @@ class RecommendationHomeScreen extends StatelessWidget {
             onTap: onStartRecommended,
             child: Row(
               children: [
-                const TherapyIconBubble(kind: TherapyIconKind.leaf, size: 52),
+                TherapyIconBubble(kind: activity.iconKind, size: 52),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Breathing Exercise',
-                        style: TextStyle(
+                        activity.title,
+                        style: const TextStyle(
                           color: TherapyColors.navy,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        'Calm  •  3 minutes',
-                        style: TextStyle(
+                        '${activity.category}  •  ${activity.durationLabel}',
+                        style: const TextStyle(
                           color: TherapyColors.tealDark,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'A simple breathing exercise to reduce stress and improve focus.',
-                        style: TextStyle(color: TherapyColors.body, fontSize: 12.5, height: 1.35),
+                        activity.description,
+                        style: const TextStyle(color: TherapyColors.body, fontSize: 12.5, height: 1.35),
                       ),
                     ],
                   ),

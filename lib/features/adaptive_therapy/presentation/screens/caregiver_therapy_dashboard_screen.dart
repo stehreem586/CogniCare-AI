@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/mock_therapy_data.dart';
 import '../theme/therapy_colors.dart';
-import '../widgets/therapy_bottom_nav.dart';
 import '../widgets/therapy_common.dart';
 import '../widgets/therapy_illustrations.dart';
 
@@ -13,11 +12,6 @@ class CaregiverTherapyDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TherapyPage(
-      bottomNavigationBar: TherapyBottomNav(
-        caregiver: true,
-        index: 0,
-        onTap: (_) {},
-      ),
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),

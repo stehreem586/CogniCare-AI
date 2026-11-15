@@ -1,21 +1,38 @@
 import 'package:flutter/material.dart';
+
 import '../../data/mock_therapy_data.dart';
 import '../theme/therapy_colors.dart';
-import '../widgets/therapy_bottom_nav.dart';
 import '../widgets/therapy_common.dart';
 import 'progress_tracking_screen.dart';
 import 'recommendation_home_screen.dart';
-import 'wellness_tips_screen.dart';
+import 'recommendation_types_screen.dart';
 
 class PatientTherapyShell extends StatefulWidget {
-  const PatientTherapyShell({super.key});
+  const PatientTherapyShell({
+    super.key,
+    this.activities,
+    this.typeItems,
+    this.recommendedActivity,
+    this.initialTab = TherapyModuleTab.home,
+  });
+
+  final List<TherapyActivity>? activities;
+  final List<TherapyTypeItem>? typeItems;
+  final TherapyActivity? recommendedActivity;
+  final TherapyModuleTab initialTab;
 
   @override
   State<PatientTherapyShell> createState() => _PatientTherapyShellState();
 }
 
 class _PatientTherapyShellState extends State<PatientTherapyShell> {
-  int _index = 0;
+  late int _index;
+
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.initialTab.index;
+  }
 
   void _go(String route) {
     Navigator.of(context).pushNamed(route);
@@ -23,37 +40,52 @@ class _PatientTherapyShellState extends State<PatientTherapyShell> {
 
   @override
   Widget build(BuildContext context) {
+    final navigation = TherapyNavigationScope.maybeOf(context);
+    final index = navigation?.currentIndex ?? _index;
+
+    void selectTab(int tab) {
+      if (navigation != null) {
+        navigation.onTap(tab);
+      } else {
+        setState(() => _index = tab);
+      }
+    }
+
     final pages = [
       RecommendationHomeScreen(
+        activities: widget.activities,
+        recommendedActivity: widget.recommendedActivity,
         onOpenTypes: () => _go(TherapyRouteNames.types),
         onStartRecommended: () => _go(TherapyRouteNames.activityDetail),
-        onOpenWellness: () => setState(() => _index = 1),
+        onOpenWellness: () => selectTab(1),
         onOpenCognitive: () => _go(TherapyRouteNames.cognitiveGame),
         onOpenMemory: () => _go(TherapyRouteNames.memoryExercise),
       ),
-      const WellnessTipsScreen(),
+      RecommendationTypesScreen(
+        items: widget.typeItems,
+        onSelect: (item) => Navigator.of(context).pushNamed(
+          item.routeName,
+          arguments: item,
+        ),
+      ),
       const ProgressTrackingScreen(),
       _MoreTab(
-        onCaregiver: () => _go(TherapyRouteNames.caregiver),
         onTypes: () => _go(TherapyRouteNames.types),
+        onWellness: () => _go(TherapyRouteNames.wellness),
       ),
     ];
 
     return TherapyPage(
-      bottomNavigationBar: TherapyBottomNav(
-        index: _index,
-        onTap: (i) => setState(() => _index = i),
-      ),
-      child: IndexedStack(index: _index, children: pages),
+      child: IndexedStack(index: index, children: pages),
     );
   }
 }
 
 class _MoreTab extends StatelessWidget {
-  const _MoreTab({required this.onCaregiver, required this.onTypes});
+  const _MoreTab({required this.onTypes, required this.onWellness});
 
-  final VoidCallback onCaregiver;
   final VoidCallback onTypes;
+  final VoidCallback onWellness;
 
   @override
   Widget build(BuildContext context) {
@@ -93,14 +125,14 @@ class _MoreTab extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           TherapyCard(
-            onTap: onCaregiver,
+            onTap: onWellness,
             child: const Row(
               children: [
-                TherapyIconBubble(kind: TherapyIconKind.routine),
+                TherapyIconBubble(kind: TherapyIconKind.mindfulness),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Caregiver view (Module 3)',
+                    'Wellness tips',
                     style: TextStyle(
                       color: TherapyColors.navy,
                       fontWeight: FontWeight.w700,

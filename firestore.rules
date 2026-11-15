@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function ownsPatientData(patientId) {
+      return isSignedIn() && request.auth.uid == patientId;
+    }
+
+    function mayViewPatientData(patientId) {
+      return ownsPatientData(patientId) ||
+        (isSignedIn() && exists(/databases/$(database)/documents/caregiverPatientLinks/$(request.auth.uid + '_' + patientId)));
+    }
+
+    function isAuthorizedCaregiverFor(patientId) {
+      return isSignedIn() && exists(
+        /databases/$(database)/documents/caregiverPatientLinks/$(request.auth.uid + '_' + patientId)
+      );
+    }
+
+    match /users/{userId} {
+      allow create: if ownsPatientData(userId);
+      allow read: if ownsPatientData(userId) || isAuthorizedCaregiverFor(userId);
+      allow update: if ownsPatientData(userId);
+      allow delete: if ownsPatientData(userId);
+
+      match /healthProfile/{documentId} {
+        allow read: if mayViewPatientData(userId);
+        allow create, update: if ownsPatientData(userId) || isAuthorizedCaregiverFor(userId);
+        allow delete: if ownsPatientData(userId);
+      }
+
+      match /emergencyContacts/{contactId} {
+        allow read: if mayViewPatientData(userId);
+        allow create, update, delete: if ownsPatientData(userId);
+      }
+    }
+
+    match /caregiverPatientLinks/{linkId} {
+      allow read: if isSignedIn() && (
+        resource.data.caregiverId == request.auth.uid ||
+        resource.data.patientId == request.auth.uid
+      );
+      allow create: if isSignedIn() && request.resource.data.caregiverId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.caregiverId == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /therapyActivities/{document=**} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /therapyRecommendations/{document=**} {
+      allow read: if isSignedIn() && resource.data.patientId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.patientId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    match /activitySessions/{document=**} {
+      allow read: if isSignedIn() && resource.data.patientId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.patientId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    match /patientPreferences/{patientId} {
+      allow read: if ownsPatientData(patientId);
+      allow create, update, delete: if ownsPatientData(patientId);
+    }
+
+    match /activityFeedback/{document=**} {
+      allow read: if isSignedIn() && resource.data.patientId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.patientId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    match /assessmentSessions/{sessionId} {
+      allow create: if isSignedIn() && request.resource.data.patientId == request.auth.uid;
+      allow read: if isSignedIn() && mayViewPatientData(resource.data.patientId);
+      allow update: if isSignedIn() && ownsPatientData(resource.data.patientId)
+        && request.resource.data.patientId == resource.data.patientId;
+      allow delete: if isSignedIn() && ownsPatientData(resource.data.patientId);
+    }
+  }
+}

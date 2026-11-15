@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'app/theme.dart';
-import 'features/adaptive_therapy/adaptive_therapy_module.dart';
 
-/// Standalone entry for Adaptive Therapy (Module 3) frontend.
-/// Run with: flutter run -t lib/therapy_main.dart
-/// This does not initialize Firebase — backend comes later.
-void main() {
+import 'app/theme.dart';
+import 'core/firebase/firebase_initializer.dart';
+import 'features/adaptive_therapy/assessment_module.dart';
+
+/// Standalone entry for Adaptive Therapy (Module 3).
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeCogniCareFirebase();
   runApp(const AdaptiveTherapyPreviewApp());
 }
 
@@ -19,7 +20,7 @@ class AdaptiveTherapyPreviewApp extends StatelessWidget {
       title: 'CogniCare AI — Adaptive Therapy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AdaptiveTherapyModule(),
+      home: const AssessmentModule(),
     );
   }
 }

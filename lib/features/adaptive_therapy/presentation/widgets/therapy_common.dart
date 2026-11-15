@@ -2,6 +2,26 @@ import 'package:flutter/material.dart';
 import '../../data/mock_therapy_data.dart';
 import '../theme/therapy_colors.dart';
 
+class TherapyNavigationScope extends InheritedWidget {
+  const TherapyNavigationScope({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+    required super.child,
+  });
+
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  static TherapyNavigationScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<TherapyNavigationScope>();
+  }
+
+  @override
+  bool updateShouldNotify(TherapyNavigationScope oldWidget) =>
+      currentIndex != oldWidget.currentIndex || onTap != oldWidget.onTap;
+}
+
 class TherapyPage extends StatelessWidget {
   const TherapyPage({super.key, required this.child, this.bottomNavigationBar});
 

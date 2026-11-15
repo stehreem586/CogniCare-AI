@@ -1,5 +1,7 @@
+import 'models/therapy_models.dart';
+export 'models/therapy_models.dart';
+
 /// Frontend-only mock content for Adaptive Therapy (Module 3).
-/// Replace with API/Firestore later — no backend calls live here.
 class TherapyMocks {
   TherapyMocks._();
 
@@ -8,42 +10,6 @@ class TherapyMocks {
   static const String caregiverRole = 'Caregiver';
   static const String emotion = 'Calm';
   static const int confidence = 82;
-}
-
-class TherapyActivity {
-  const TherapyActivity({
-    required this.id,
-    required this.title,
-    required this.category,
-    required this.durationLabel,
-    required this.description,
-    required this.benefits,
-    required this.iconKind,
-  });
-
-  final String id;
-  final String title;
-  final String category;
-  final String durationLabel;
-  final String description;
-  final List<String> benefits;
-  final TherapyIconKind iconKind;
-}
-
-enum TherapyIconKind { leaf, games, mindfulness, reminiscence, routine }
-
-class TherapyTypeItem {
-  const TherapyTypeItem({
-    required this.title,
-    required this.subtitle,
-    required this.iconKind,
-    required this.routeName,
-  });
-
-  final String title;
-  final String subtitle;
-  final TherapyIconKind iconKind;
-  final String routeName;
 }
 
 class WellnessTip {
@@ -178,7 +144,9 @@ class TherapyRouteNames {
   static const String relaxation = '/relaxation';
   static const String cognitiveGame = '/cognitive-game';
   static const String memoryExercise = '/memory-exercise';
+  static const String wellness = '/wellness';
   static const String activityDetail = '/activity-detail';
   static const String activityComplete = '/activity-complete';
+  static const String profile = '/profile';
   static const String caregiver = '/caregiver';
 }

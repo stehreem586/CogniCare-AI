@@ -24,8 +24,8 @@ class TherapyBottomNav extends StatelessWidget {
           ]
         : const [
             (Icons.home_outlined, Icons.home_rounded, 'Home'),
-            (Icons.grid_view_outlined, Icons.grid_view_rounded, 'Activities'),
             (Icons.insights_outlined, Icons.insights_rounded, 'Progress'),
+            (Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
             (Icons.menu_rounded, Icons.menu_rounded, 'More'),
           ];
 
