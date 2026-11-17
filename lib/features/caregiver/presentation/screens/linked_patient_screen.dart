@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../profile/data/models/health_profile.dart';
 import '../../../profile/data/models/user_profile.dart';
+import '../../../adaptive_therapy/presentation/screens/assessment_reports_screen.dart';
 import '../../data/repositories/caregiver_repository_impl.dart';
 
 class LinkedPatientScreen extends StatefulWidget {
@@ -164,6 +165,33 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
                                 ],
                               ),
                             ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 58,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => AssessmentReportsScreen(
+                                    patientId: _patient!.uid,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.assessment_rounded, size: 28),
+                            label: const Text(
+                              'View assessment reports',
+                              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),

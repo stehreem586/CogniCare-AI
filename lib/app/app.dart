@@ -13,6 +13,9 @@ class CogniCareApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       initialRoute: AppRoutes.splash,
       routes: AppRoutes.routes,
+      builder: (context, child) => SizedBox.expand(
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 }

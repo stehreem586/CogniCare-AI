@@ -169,7 +169,7 @@ class CaregiverRemoteDataSourceImpl implements CaregiverRemoteDataSource {
 
       final docRef = _firestore
           .collection(FirestoreConstants.caregiverPatientLinksCollection)
-          .doc();
+          .doc('${caregiverId}_$patientId');
 
       await docRef.set({
         FirestoreConstants.fieldCaregiverId: caregiverId,

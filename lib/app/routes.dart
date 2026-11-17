@@ -11,6 +11,8 @@ import '../features/profile/presentation/screens/emergency_contacts_screen.dart'
 import '../features/profile/presentation/screens/edit_patient_profile_screen.dart';
 import '../features/caregiver/presentation/screens/caregiver_dashboard.dart';
 import '../features/caregiver/presentation/screens/linked_patient_screen.dart';
+import '../features/adaptive_therapy/assessment_module.dart';
+import '../features/adaptive_therapy/data/models/therapy_models.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -27,6 +29,7 @@ class AppRoutes {
   static const String editPatientProfile = '/edit-patient-profile';
   static const String caregiverDashboard = '/caregiver-dashboard';
   static const String linkedPatient = '/linked-patient';
+  static const String adaptiveTherapy = '/adaptive-therapy';
 
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -41,5 +44,11 @@ class AppRoutes {
         editPatientProfile: (context) => const EditPatientProfileScreen(),
         caregiverDashboard: (context) => const CaregiverDashboard(),
         linkedPatient: (context) => const LinkedPatientScreen(),
+        adaptiveTherapy: (context) {
+          final tab = ModalRoute.of(context)?.settings.arguments;
+          return AssessmentModule(
+            initialTab: tab is TherapyModuleTab ? tab : TherapyModuleTab.home,
+          );
+        },
       };
 }

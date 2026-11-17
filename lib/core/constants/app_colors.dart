@@ -7,7 +7,6 @@ class AppColors {
   static const Color primary = Color(0xFF0066BD); // Deep blue for primary actions
   static const Color primaryDark = Color(0xFF004E92);
   static const Color primaryLight = Color(0xFFEBF4FC);
-  
   static const Color titleNavy = Color(0xFF0A3967); // "CogniCare" text color
   static const Color brandTeal = Color(0xFF1DB978);  // "AI" green/teal color
   static const Color taglineBlue = Color(0xFF0066CC); // Tagline text color

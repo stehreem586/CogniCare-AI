@@ -121,7 +121,7 @@ class _SignupScreenState extends State<SignupScreen> {
             );
           } else {
             Navigator.of(context).pushNamedAndRemoveUntil(
-              AppRoutes.patientProfile,
+              AppRoutes.adaptiveTherapy,
               (route) => false,
             );
           }

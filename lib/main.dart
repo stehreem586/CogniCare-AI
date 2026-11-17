@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'services/firebase_service.dart';
-import 'app/app.dart';
+﻿import 'package:flutter/material.dart';
 
-void main() async {
+import 'app/app.dart';
+import 'core/firebase/firebase_initializer.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseService.initialize();
+  await initializeCogniCareFirebase();
   runApp(const CogniCareApp());
 }

@@ -13,13 +13,13 @@ class AppTheme {
         primary: AppColors.primary,
         surface: Colors.white,
       ),
-      scaffoldBackgroundColor: Colors.white,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xFFF5F8FC),
+      appBarTheme: AppBarTheme(
+        backgroundColor: const Color(0xFFF5F8FC),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: const TextStyle(
           color: AppColors.textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -37,6 +37,9 @@ class AppTheme {
             fontWeight: FontWeight.w600,
           ),
         ),
+      ),
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(color: Color(0xFF25415B)),
       ),
     );
   }

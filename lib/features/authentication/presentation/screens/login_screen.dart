@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           } else {
             Navigator.of(context).pushNamedAndRemoveUntil(
-              AppRoutes.patientProfile,
+              AppRoutes.adaptiveTherapy,
               (route) => false,
             );
           }

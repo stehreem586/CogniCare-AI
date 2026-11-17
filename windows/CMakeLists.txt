@@ -2,6 +2,9 @@
 cmake_minimum_required(VERSION 3.14)
 project(cognicare_ai LANGUAGES CXX)
 
+# Firebase's Windows SDK still declares a pre-3.5 minimum version.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
 set(BINARY_NAME "cognicare_ai")
