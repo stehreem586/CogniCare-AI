@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/cognicare_bottom_bar.dart';
 import '../../../../services/auth_state_service.dart';
 import '../../../authentication/data/repositories/auth_repository_impl.dart';
 import '../../data/models/user_profile.dart';
@@ -17,6 +18,7 @@ class PatientProfileScreen extends StatefulWidget {
 }
 
 class _PatientProfileScreenState extends State<PatientProfileScreen> {
+  int _selectedBottomIndex = 1;
   bool _isLoading = true;
   UserProfile? _profile;
 
@@ -214,6 +216,14 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                 ),
               ),
             ),
+      bottomNavigationBar: CogniCareBottomBar(
+        currentIndex: _selectedBottomIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedBottomIndex = index;
+          });
+        },
+      ),
     );
   }
 }

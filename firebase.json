@@ -1,1 +1,24 @@
-{"firestore":{"rules":"firestore.rules"},"flutter":{"platforms":{"android":{"default":{"projectId":"myandroidapp-7feb6","appId":"1:487269984632:android:489bc70068590e7788408d","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"myandroidapp-7feb6","configurations":{"android":"1:487269984632:android:489bc70068590e7788408d","ios":"1:487269984632:ios:d447cb16350c9e1188408d","macos":"1:487269984632:ios:d447cb16350c9e1188408d","web":"1:487269984632:web:44872718cf9044e088408d","windows":"1:487269984632:web:87ac7aee81aac2c688408d"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "cognicare-ai",
+          "appId": "1:364043557479:android:5f88b6630cc00c392c92c2",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "cognicare-ai",
+          "configurations": {
+            "android": "1:364043557479:android:5f88b6630cc00c392c92c2"
+          }
+        }
+      }
+    }
+  }
+}
