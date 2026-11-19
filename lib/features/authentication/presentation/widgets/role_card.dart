@@ -42,19 +42,22 @@ class RoleCard extends StatelessWidget {
         ? const Color(0xFF506882)
         : const Color(0xFF437A5C);
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       decoration: BoxDecoration(
         color: cardBgColor,
         borderRadius: BorderRadius.circular(20.0),
         border: Border.all(
           color: borderColor,
-          width: isSelected ? 2.0 : 1.2,
+          width: isSelected ? 2.2 : 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: iconColor.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: isSelected
+                ? iconColor.withValues(alpha: 0.16)
+                : iconColor.withValues(alpha: 0.04),
+            blurRadius: isSelected ? 14 : 8,
             offset: const Offset(0, 4),
           ),
         ],
@@ -115,11 +118,22 @@ class RoleCard extends StatelessWidget {
 
                 const SizedBox(width: 8),
 
-                // Right Arrow Icon
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: iconColor,
-                  size: 26,
+                // Right Arrow or Selection Checkmark
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: isSelected ? iconColor : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isSelected
+                        ? Icons.check_rounded
+                        : Icons.chevron_right_rounded,
+                    color: isSelected ? Colors.white : iconColor,
+                    size: isSelected ? 18 : 24,
+                  ),
                 ),
               ],
             ),

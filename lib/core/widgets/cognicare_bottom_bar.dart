@@ -83,42 +83,46 @@ class CogniCareBottomBar extends StatelessWidget {
         }
       },
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF7CE2BE) : Colors.transparent,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? const Color(0xFF0A3967) : const Color(0xFF64748B),
-              size: 22,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected ? AppColors.brandTeal : const Color(0xFF64748B),
-            ),
-          ),
-          if (isSelected)
-            Container(
-              margin: const EdgeInsets.only(top: 2),
-              width: 24,
-              height: 2.5,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              width: 52,
+              height: 32,
               decoration: BoxDecoration(
-                color: AppColors.brandTeal,
-                borderRadius: BorderRadius.circular(2),
+                color: isSelected
+                    ? AppColors.brandTeal.withValues(alpha: 0.16)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  color: isSelected
+                      ? AppColors.titleNavy
+                      : const Color(0xFF64748B),
+                  size: 22,
+                ),
               ),
             ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? AppColors.titleNavy : const Color(0xFF64748B),
+                letterSpacing: 0.1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
