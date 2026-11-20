@@ -327,6 +327,21 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.pushNamed(context, AppRoutes.lifeStoryHub);
+                            },
+                            icon: const Icon(Icons.auto_stories_rounded),
+                            label: const Text('Life Story & Memory Hub'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0F325E),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

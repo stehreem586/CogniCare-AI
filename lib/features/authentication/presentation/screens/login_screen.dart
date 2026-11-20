@@ -319,39 +319,50 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    SizedBox(
+                    Container(
                       width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton(
-                        onPressed: _handleGoogleSignIn,
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: const BorderSide(
-                            color: Color(0xFFE2E8F0),
-                            width: 1.2,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(26),
-                          ),
-                          elevation: 0,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(26),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                          width: 1.2,
                         ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GoogleLogoIcon(size: 20),
-                            SizedBox(width: 12),
-                            Flexible(
-                              child: Text(
-                                'Continue with Google',
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: AppColors.titleNavy,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _handleGoogleSignIn,
+                          borderRadius: BorderRadius.circular(26),
+                          splashColor: const Color(0xFF4285F4).withValues(alpha: 0.1),
+                          highlightColor: const Color(0xFF4285F4).withValues(alpha: 0.05),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GoogleLogoIcon(size: 22),
+                              SizedBox(width: 12),
+                              Flexible(
+                                child: Text(
+                                  'Continue with Google',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: AppColors.titleNavy,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.1,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

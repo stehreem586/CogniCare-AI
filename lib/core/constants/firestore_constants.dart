@@ -29,4 +29,17 @@ class FirestoreConstants {
   // Caregiver Patient Link field keys
   static const String fieldCaregiverId = 'caregiverId';
   static const String fieldPatientId = 'patientId';
+
+  // Module 4 Life Story & Memory constants
+  static const String memoriesCollection = 'memories';
+  static const String fieldMemoryTitle = 'title';
+  static const String fieldMemoryDate = 'date';
+  static const String fieldMemoryPlace = 'place';
+  static const String fieldMemoryEra = 'era';
+  static const String fieldTaggedPeople = 'taggedPeople';
+  static const String fieldPhotoUrl = 'photoUrl';
+  static const String fieldPhotoBase64 = 'photoBase64';
+  static const String fieldIllustrationKey = 'illustrationKey';
+  static const String fieldAudioDuration = 'audioDurationSeconds';
+  static const String fieldAiSuggestions = 'aiSuggestions';
 }

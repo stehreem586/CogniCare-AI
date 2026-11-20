@@ -13,6 +13,12 @@ import '../features/caregiver/presentation/screens/caregiver_dashboard.dart';
 import '../features/caregiver/presentation/screens/linked_patient_screen.dart';
 import '../features/adaptive_therapy/assessment_module.dart';
 import '../features/adaptive_therapy/data/models/therapy_models.dart';
+import '../features/life_story/presentation/screens/life_story_hub_screen.dart';
+import '../features/life_story/presentation/screens/new_memory_screen.dart';
+import '../features/life_story/presentation/screens/memory_library_screen.dart';
+import '../features/life_story/presentation/screens/life_timeline_screen.dart';
+import '../features/life_story/presentation/screens/relationship_map_screen.dart';
+import '../features/life_story/presentation/screens/recall_prompts_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -30,6 +36,12 @@ class AppRoutes {
   static const String caregiverDashboard = '/caregiver-dashboard';
   static const String linkedPatient = '/linked-patient';
   static const String adaptiveTherapy = '/adaptive-therapy';
+  static const String lifeStoryHub = '/life-story-hub';
+  static const String newMemory = '/new-memory';
+  static const String memoryLibrary = '/memory-library';
+  static const String lifeTimeline = '/life-timeline';
+  static const String relationshipMap = '/relationship-map';
+  static const String recallPrompts = '/recall-prompts';
 
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -44,6 +56,12 @@ class AppRoutes {
         editPatientProfile: (context) => const EditPatientProfileScreen(),
         caregiverDashboard: (context) => const CaregiverDashboard(),
         linkedPatient: (context) => const LinkedPatientScreen(),
+        lifeStoryHub: (context) => const LifeStoryHubScreen(),
+        newMemory: (context) => const NewMemoryScreen(),
+        memoryLibrary: (context) => const MemoryLibraryScreen(),
+        lifeTimeline: (context) => const LifeTimelineScreen(),
+        relationshipMap: (context) => const RelationshipMapScreen(),
+        recallPrompts: (context) => const RecallPromptsScreen(),
         adaptiveTherapy: (context) {
           final tab = ModalRoute.of(context)?.settings.arguments;
           return AssessmentModule(

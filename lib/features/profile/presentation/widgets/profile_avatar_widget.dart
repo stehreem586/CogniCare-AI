@@ -189,32 +189,53 @@ class _ProfileAvatarWidgetState extends State<ProfileAvatarWidget> {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              // Outer Mint Ring Background
+              // Outer Gradient Ring Background
               Container(
                 width: 110,
                 height: 110,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFD2F0E2),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF7CE2BE),
+                      Color(0xFF0066BD),
+                    ],
+                  ),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.18),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: ClipOval(
-                    child: _imageBytes != null
-                        ? Image.memory(
-                            _imageBytes!,
-                            width: 102,
-                            height: 102,
-                            fit: BoxFit.cover,
-                          )
-                        : _buildDefaultAvatar(),
+                  padding: const EdgeInsets.all(3.0),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(2.0),
+                    child: ClipOval(
+                      child: _imageBytes != null
+                          ? Image.memory(
+                              _imageBytes!,
+                              width: 98,
+                              height: 98,
+                              fit: BoxFit.cover,
+                            )
+                          : _buildDefaultAvatar(),
+                    ),
                   ),
                 ),
               ),
 
-              // Edit Camera/Pencil Badge Button
+              // Edit Camera Badge Button
               Positioned(
-                right: -2,
+                right: 0,
                 bottom: 2,
                 child: GestureDetector(
                   onTap: _showImagePickerModal,
@@ -222,7 +243,7 @@ class _ProfileAvatarWidgetState extends State<ProfileAvatarWidget> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0A3967),
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Colors.white,
@@ -238,9 +259,9 @@ class _ProfileAvatarWidgetState extends State<ProfileAvatarWidget> {
                     ),
                     child: const Center(
                       child: Icon(
-                        Icons.edit_rounded,
+                        Icons.camera_alt_rounded,
                         color: Colors.white,
-                        size: 16,
+                        size: 15,
                       ),
                     ),
                   ),
@@ -285,12 +306,15 @@ class _ProfileAvatarWidgetState extends State<ProfileAvatarWidget> {
 
   Widget _buildDefaultAvatar() {
     return Container(
-      color: const Color(0xFFD2F0E2),
-      child: const Center(
-        child: Icon(
-          Icons.face_rounded,
-          size: 68,
-          color: Color(0xFF1DB978),
+      color: const Color(0xFFEFF6FF),
+      child: Center(
+        child: Text(
+          widget.name.trim().isNotEmpty ? widget.name.trim()[0].toUpperCase() : 'U',
+          style: const TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+          ),
         ),
       ),
     );
