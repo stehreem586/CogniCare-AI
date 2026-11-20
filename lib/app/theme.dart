@@ -20,31 +20,19 @@ class AppTheme {
         error: const Color(0xFFEF4444),
         onError: Colors.white,
       ),
-<<<<<<< Updated upstream
-      scaffoldBackgroundColor: const Color(0xFFF5F8FC),
-      appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFFF5F8FC),
-=======
     );
 
     return base.copyWith(
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
         foregroundColor: AppColors.titleNavy,
->>>>>>> Stashed changes
         elevation: 0,
         scrolledUnderElevation: 0.5,
         centerTitle: true,
-<<<<<<< Updated upstream
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: const TextStyle(
-          color: AppColors.textPrimary,
-=======
         iconTheme: IconThemeData(color: AppColors.titleNavy),
         titleTextStyle: TextStyle(
           color: AppColors.titleNavy,
->>>>>>> Stashed changes
           fontSize: 18,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
@@ -151,14 +139,6 @@ class AppTheme {
           ),
         ),
       ),
-<<<<<<< Updated upstream
-      textTheme: const TextTheme(
-        bodyMedium: TextStyle(color: Color(0xFF25415B)),
-      ),
-    );
-  }
-}
-=======
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
@@ -183,8 +163,9 @@ class AppTheme {
         thickness: 1.0,
         space: 24,
       ),
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(color: AppColors.textPrimary),
+      ),
     );
   }
 }
-
->>>>>>> Stashed changes
