@@ -73,6 +73,7 @@ class _AssessmentShellState extends State<_AssessmentShell> {
   late TherapyModuleTab _tab = widget.initialTab;
   late List<AssessmentActivityDefinition> _selectedActivities = widget.load.selectedActivities;
   late List<AssessmentSessionReport> _reports = widget.load.reports;
+  late List<Set<String>> _previousCombinations = [...widget.load.previousCombinations];
 
   void _startAssessment() {
     Navigator.of(context).push(MaterialPageRoute<void>(
@@ -81,11 +82,12 @@ class _AssessmentShellState extends State<_AssessmentShell> {
         onFinished: (report) {
           setState(() {
             _reports = [report, ..._reports];
+            _previousCombinations = [
+              ..._previousCombinations,
+              {for (final activity in report.activityScores) activity.activityId},
+            ];
             _selectedActivities = AssessmentService.selectActivities(
-              previousCombinations: [
-                ...widget.load.previousCombinations,
-                {for (final activity in report.activityScores) activity.activityId},
-              ],
+              previousCombinations: _previousCombinations,
             );
           });
           Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => AssessmentResultsScreen(report: report, onDone: () => Navigator.of(context).pop())));

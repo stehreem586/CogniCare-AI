@@ -19,7 +19,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError('CogniCare does not support macOS.');
       case TargetPlatform.windows:
         return web;
       case TargetPlatform.linux:
@@ -30,37 +30,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'USE_YOUR_COGNICARE_ANDROID_API_KEY',
-    appId: '1:364043557479:android:5f88b6630cc00c392c92c2',
-    messagingSenderId: '364043557479',
-    projectId: 'cognicare-ai',
-    storageBucket: 'cognicare-ai.firebasestorage.app',
+    apiKey: 'AIzaSyC_XY8MzCdGzM7YGnBL_H4PRDAVkH1PqBs',
+    appId: '1:487269984632:android:489bc70068590e7788408d',
+    messagingSenderId: '487269984632',
+    projectId: 'myandroidapp-7feb6',
+    storageBucket: 'myandroidapp-7feb6.firebasestorage.app',
   );
-
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'USE_YOUR_COGNICARE_WEB_API_KEY',
-    appId: '1:364043557479:web:5f88b6630cc00c392c92c2',
-    messagingSenderId: '364043557479',
-    projectId: 'cognicare-ai',
-    authDomain: 'cognicare-ai.firebaseapp.com',
-    storageBucket: 'cognicare-ai.firebasestorage.app',
+    apiKey: 'AIzaSyDMaxlsGWBT2qwvGKNXIOWT_eHh92zIsZI',
+    appId: '1:487269984632:web:44872718cf9044e088408d',
+    messagingSenderId: '487269984632',
+    projectId: 'myandroidapp-7feb6',
+    authDomain: 'myandroidapp-7feb6.firebaseapp.com',
+    storageBucket: 'myandroidapp-7feb6.firebasestorage.app',
+    measurementId: 'G-QXY014ET0L',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'USE_YOUR_COGNICARE_IOS_API_KEY',
-    appId: '1:364043557479:ios:5f88b6630cc00c392c92c2',
-    messagingSenderId: '364043557479',
-    projectId: 'cognicare-ai',
-    storageBucket: 'cognicare-ai.firebasestorage.app',
-    iosBundleId: 'com.example.cognicareAi',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'USE_YOUR_COGNICARE_IOS_API_KEY',
-    appId: '1:364043557479:ios:5f88b6630cc00c392c92c2',
-    messagingSenderId: '364043557479',
-    projectId: 'cognicare-ai',
-    storageBucket: 'cognicare-ai.firebasestorage.app',
+    apiKey: 'AIzaSyDcO_BWoer63SJz-MG20-7BR0cHjzBSkzI',
+    appId: '1:487269984632:ios:d447cb16350c9e1188408d',
+    messagingSenderId: '487269984632',
+    projectId: 'myandroidapp-7feb6',
+    storageBucket: 'myandroidapp-7feb6.firebasestorage.app',
     iosBundleId: 'com.example.cognicareAi',
   );
 }
+

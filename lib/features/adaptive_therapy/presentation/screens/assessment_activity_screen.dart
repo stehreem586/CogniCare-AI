@@ -25,6 +25,12 @@ class AssessmentActivityScreen extends StatefulWidget {
 }
 
 class _AssessmentActivityScreenState extends State<AssessmentActivityScreen> {
+  static const _animalImageUrls = {
+    'cat': 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=500&q=88',
+    'dog': 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=500&q=88',
+    'rabbit': 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=500&q=88',
+  };
+
   late final List<_Question> _questions;
   Timer? _timer;
   int _studySeconds = 0;
@@ -370,10 +376,17 @@ class _AssessmentActivityScreenState extends State<AssessmentActivityScreen> {
       );
 
   Widget _buildCards() {
-    const cards = ['sun', 'leaf', 'moon', 'moon', 'sun', 'leaf'];
+    const cards = ['cat', 'dog', 'rabbit', 'rabbit', 'cat', 'dog'];
     return Column(
       children: [
-        Text('Pairs found: ${_matchedCards.length ~/ 2} of 3', style: const TextStyle(color: TherapyColors.navy, fontSize: 22, fontWeight: FontWeight.w800)),
+        Text(
+          'Pairs found: ${_matchedCards.length ~/ 2} of 3',
+          style: const TextStyle(
+            color: TherapyColors.navy,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         const SizedBox(height: 18),
         Expanded(
           child: GridView.builder(
@@ -386,7 +399,10 @@ class _AssessmentActivityScreenState extends State<AssessmentActivityScreen> {
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
                   decoration: BoxDecoration(color: visible ? const Color(0xFFE7F7F1) : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: TherapyColors.primary)),
-                  child: visible ? _ObjectVisual(label: cards[index], size: 74) : const Icon(Icons.style_rounded, size: 44, color: TherapyColors.primary),
+                  padding: const EdgeInsets.all(7),
+                  child: visible
+                      ? _AnimalImage(url: _animalImageUrls[cards[index]]!)
+                      : const _CardBack(),
                 ),
               );
             },
@@ -396,6 +412,67 @@ class _AssessmentActivityScreenState extends State<AssessmentActivityScreen> {
     );
   }
 }
+
+  class _AnimalImage extends StatelessWidget {
+    const _AnimalImage({required this.url});
+
+    final String url;
+
+    @override
+    Widget build(BuildContext context) => ClipRRect(
+          borderRadius: BorderRadius.circular(11),
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFBDEBFF), Color(0xFFE7F7F1)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+          ),
+        );
+  }
+
+  class _CardBack extends StatelessWidget {
+    const _CardBack();
+
+    @override
+    Widget build(BuildContext context) => DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0066BD), Color(0xFF39A9DB)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Center(
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.65), width: 2),
+              ),
+              child: const Center(
+                child: Text(
+                  '?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+  }
 
 class _Question {
   const _Question(this.prompt, this.options, this.correctIndex);

@@ -1,13 +1,32 @@
 {
   "project_info": {
-    "project_number": "364043557479",
-    "project_id": "cognicare-ai",
-    "storage_bucket": "cognicare-ai.firebasestorage.app"
+    "project_number": "487269984632",
+    "project_id": "myandroidapp-7feb6",
+    "storage_bucket": "myandroidapp-7feb6.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:364043557479:android:5f88b6630cc00c392c92c2",
+        "mobilesdk_app_id": "1:487269984632:android:17e99ae443be114288408d",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_XY8MzCdGzM7YGnBL_H4PRDAVkH1PqBs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487269984632:android:489bc70068590e7788408d",
         "android_client_info": {
           "package_name": "com.example.cognicare_ai"
         }
@@ -15,7 +34,26 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAtYMBE7Ly2a6Dz0PLBm4BSXQT4Pul6jRQ"
+          "current_key": "AIzaSyC_XY8MzCdGzM7YGnBL_H4PRDAVkH1PqBs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487269984632:android:083c41b385b3395688408d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_XY8MzCdGzM7YGnBL_H4PRDAVkH1PqBs"
         }
       ],
       "services": {
