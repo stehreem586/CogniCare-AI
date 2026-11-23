@@ -16,11 +16,7 @@ class NewMemoryScreen extends StatefulWidget {
   final MemoryRepository? memoryRepository;
   final String? patientId;
 
-  const NewMemoryScreen({
-    super.key,
-    this.memoryRepository,
-    this.patientId,
-  });
+  const NewMemoryScreen({super.key, this.memoryRepository, this.patientId});
 
   @override
   State<NewMemoryScreen> createState() => _NewMemoryScreenState();
@@ -129,9 +125,15 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Color(0xFFEFF6FF),
-                    child: Icon(Icons.photo_library_outlined, color: AppColors.primary),
+                    child: Icon(
+                      Icons.photo_library_outlined,
+                      color: AppColors.primary,
+                    ),
                   ),
-                  title: const Text('Choose from Gallery', style: TextStyle(fontWeight: FontWeight.w600)),
+                  title: const Text(
+                    'Choose from Gallery',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   onTap: () {
                     Navigator.pop(ctx);
                     _pickImage(ImageSource.gallery);
@@ -140,9 +142,15 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Color(0xFFEFF6FF),
-                    child: Icon(Icons.camera_alt_outlined, color: AppColors.primary),
+                    child: Icon(
+                      Icons.camera_alt_outlined,
+                      color: AppColors.primary,
+                    ),
                   ),
-                  title: const Text('Take a Photo', style: TextStyle(fontWeight: FontWeight.w600)),
+                  title: const Text(
+                    'Take a Photo',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   onTap: () {
                     Navigator.pop(ctx);
                     _pickImage(ImageSource.camera);
@@ -151,7 +159,10 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                 const Divider(),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: Text('Or select a classic life story preset:', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                  child: Text(
+                    'Or select a classic life story preset:',
+                    style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                  ),
                 ),
                 Wrap(
                   spacing: 8,
@@ -263,11 +274,18 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
       _isSaving = true;
     });
 
-    final targetPatientId = widget.patientId ??
-        (Firebase.apps.isNotEmpty ? AuthStateService.instance.currentUserProfile?.uid : null) ??
+    final targetPatientId =
+        widget.patientId ??
+        (Firebase.apps.isNotEmpty
+            ? AuthStateService.instance.currentUserProfile?.uid
+            : null) ??
         'patient_rahim_khan';
 
-    final caregiverId = (Firebase.apps.isNotEmpty ? AuthStateService.instance.currentFirebaseUser?.uid : null) ?? 'caregiver_1';
+    final caregiverId =
+        (Firebase.apps.isNotEmpty
+            ? AuthStateService.instance.currentFirebaseUser?.uid
+            : null) ??
+        'caregiver_1';
 
     final newMemory = MemoryModel(
       id: 'mem_${DateTime.now().millisecondsSinceEpoch}',
@@ -275,7 +293,9 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
       caregiverId: caregiverId,
       title: _titleController.text.trim(),
       date: _selectedDate,
-      place: _placeController.text.trim().isNotEmpty ? _placeController.text.trim() : 'Lahore',
+      place: _placeController.text.trim().isNotEmpty
+          ? _placeController.text.trim()
+          : 'Lahore',
       era: _selectedEra,
       illustrationKey: _illustrationKey,
       localImagePath: _pickedImagePath,
@@ -293,7 +313,10 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
         _isSaving = false;
       });
 
-      SnackbarUtils.showSuccess(context, 'Memory saved successfully to life story!');
+      SnackbarUtils.showSuccess(
+        context,
+        'Memory saved successfully to life story!',
+      );
 
       // Pop and return true or push library
       Navigator.of(context).pushReplacementNamed(AppRoutes.memoryLibrary);
@@ -309,8 +332,18 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
 
   String _formatDate(DateTime d) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${d.day} ${months[d.month - 1]} ${d.year}';
   }
@@ -341,7 +374,10 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                 onTap: _applyAiSuggestions,
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE8F5E9),
                     borderRadius: BorderRadius.circular(20),
@@ -353,7 +389,11 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.auto_awesome, size: 14, color: Color(0xFF2E7D32)),
+                      Icon(
+                        Icons.auto_awesome,
+                        size: 14,
+                        color: Color(0xFF2E7D32),
+                      ),
                       SizedBox(width: 4),
                       Text(
                         'AI assist',
@@ -430,7 +470,9 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                       backgroundColor: const Color(0xFF2EAA55),
                       foregroundColor: Colors.white,
                       elevation: 2,
-                      shadowColor: const Color(0xFF2EAA55).withValues(alpha: 0.4),
+                      shadowColor: const Color(
+                        0xFF2EAA55,
+                      ).withValues(alpha: 0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(27),
                       ),
@@ -498,7 +540,10 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
               child: GestureDetector(
                 onTap: _showImageOptions,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.55),
                     borderRadius: BorderRadius.circular(20),
@@ -510,7 +555,11 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.camera_alt_outlined, size: 16, color: Colors.white),
+                      Icon(
+                        Icons.camera_alt_outlined,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                       SizedBox(width: 6),
                       Text(
                         'Change photo',
@@ -540,10 +589,7 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFE8F8F0),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFC8E6C9),
-            width: 1.0,
-          ),
+          border: Border.all(color: const Color(0xFFC8E6C9), width: 1.0),
         ),
         child: const Row(
           children: [
@@ -575,7 +621,11 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       child: Row(
         children: [
-          const Icon(Icons.favorite_border_rounded, color: AppColors.primary, size: 22),
+          const Icon(
+            Icons.favorite_border_rounded,
+            color: AppColors.primary,
+            size: 22,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -621,7 +671,11 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_today_outlined, color: AppColors.primary, size: 20),
+                  const Icon(
+                    Icons.calendar_today_outlined,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -666,7 +720,11 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.location_on_outlined, color: AppColors.brandTeal, size: 22),
+                const Icon(
+                  Icons.location_on_outlined,
+                  color: AppColors.brandTeal,
+                  size: 22,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: TextField(
@@ -737,9 +795,13 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
                   child: Text(
                     era,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF64748B),
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF64748B),
                       fontSize: 13.5,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -769,12 +831,16 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
           // Tagged Names Summary
           Expanded(
             child: Text(
-              _taggedPeople.isNotEmpty ? _taggedPeople.join(', ') : 'No people tagged',
+              _taggedPeople.isNotEmpty
+                  ? _taggedPeople.join(', ')
+                  : 'No people tagged',
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: _taggedPeople.isNotEmpty ? AppColors.titleNavy : AppColors.textMuted,
+                color: _taggedPeople.isNotEmpty
+                    ? AppColors.titleNavy
+                    : AppColors.textMuted,
               ),
             ),
           ),
@@ -810,7 +876,11 @@ class _NewMemoryScreenState extends State<NewMemoryScreen> {
           color: Color(0xFFEFF6FF),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.person_outline, size: 20, color: AppColors.primary),
+        child: const Icon(
+          Icons.person_outline,
+          size: 20,
+          color: AppColors.primary,
+        ),
       );
     }
 

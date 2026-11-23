@@ -22,7 +22,10 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow create: if ownsPatientData(userId);
-      allow read: if ownsPatientData(userId) || isAuthorizedCaregiverFor(userId);
+      allow get: if ownsPatientData(userId) || isAuthorizedCaregiverFor(userId);
+      // Legacy accounts may not have a userLookup record yet. Restrict this
+      // compatibility query to documents explicitly filtered as patients.
+      allow list: if isSignedIn() && resource.data.role == 'patient';
       allow update: if ownsPatientData(userId);
       allow delete: if ownsPatientData(userId);
 
@@ -34,8 +37,33 @@ service cloud.firestore {
 
       match /emergencyContacts/{contactId} {
         allow read: if mayViewPatientData(userId);
-        allow create, update, delete: if ownsPatientData(userId);
+        // Patients and their linked caregivers may maintain emergency contacts.
+        // The caregiver link is scoped to this patient's document, so a
+        // caregiver cannot write contacts for an unrelated patient.
+        allow create, update, delete: if ownsPatientData(userId) || isAuthorizedCaregiverFor(userId);
       }
+
+      match /memories/{memoryId} {
+        // Patients and their linked caregivers share the same life-story data.
+        allow read: if mayViewPatientData(userId);
+        // Only a linked caregiver may manage a patient's memories. A patient
+        // can read their story but cannot write, edit, or delete it.
+        allow create, update, delete: if isAuthorizedCaregiverFor(userId);
+      }
+    }
+
+    // This collection contains only the minimum information needed to start
+    // a caregiver-patient link. Full user documents remain protected above.
+    match /userLookup/{email} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == email;
+      allow update: if isSignedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == email;
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
 
     match /caregiverPatientLinks/{linkId} {

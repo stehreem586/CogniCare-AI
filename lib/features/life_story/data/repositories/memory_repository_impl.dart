@@ -6,7 +6,7 @@ class MemoryRepositoryImpl implements MemoryRepository {
   final MemoryRemoteDataSource _remoteDataSource;
 
   MemoryRepositoryImpl({MemoryRemoteDataSource? remoteDataSource})
-      : _remoteDataSource = remoteDataSource ?? MemoryRemoteDataSourceImpl();
+    : _remoteDataSource = remoteDataSource ?? MemoryRemoteDataSourceImpl();
 
   @override
   Future<List<MemoryModel>> getMemories({required String patientId}) {

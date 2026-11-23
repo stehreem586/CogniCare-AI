@@ -106,7 +106,9 @@ class _EditPromptDialogState extends State<EditPromptDialog> {
               decoration: InputDecoration(
                 labelText: 'Prompt Question',
                 hintText: 'Enter question for the patient...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
 
@@ -148,10 +150,14 @@ class _EditPromptDialogState extends State<EditPromptDialog> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: isSelected ? activeColor.withValues(alpha: 0.14) : const Color(0xFFF1F5F9),
+                          color: isSelected
+                              ? activeColor.withValues(alpha: 0.14)
+                              : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? activeColor : const Color(0xFFCBD5E1),
+                            color: isSelected
+                                ? activeColor
+                                : const Color(0xFFCBD5E1),
                             width: isSelected ? 1.8 : 1.0,
                           ),
                         ),
@@ -159,8 +165,12 @@ class _EditPromptDialogState extends State<EditPromptDialog> {
                           child: Text(
                             diff,
                             style: TextStyle(
-                              color: isSelected ? activeColor : const Color(0xFF475569),
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected
+                                  ? activeColor
+                                  : const Color(0xFF475569),
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                               fontSize: 13,
                             ),
                           ),
@@ -183,9 +193,14 @@ class _EditPromptDialogState extends State<EditPromptDialog> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-                child: const Text('Save Changes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                child: const Text(
+                  'Save Changes',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
               ),
             ),
           ],

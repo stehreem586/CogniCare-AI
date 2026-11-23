@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../services/auth_state_service.dart';
 import '../../data/models/memory_model.dart';
 import '../../data/models/relationship_node_model.dart';
 import '../../data/datasources/relationship_graph_service.dart';
@@ -17,6 +19,7 @@ class RelationshipMapScreen extends StatefulWidget {
   final String? patientId;
   final String? patientName;
   final bool animate;
+  final bool readOnly;
 
   const RelationshipMapScreen({
     super.key,
@@ -24,6 +27,7 @@ class RelationshipMapScreen extends StatefulWidget {
     this.patientId,
     this.patientName,
     this.animate = true,
+    this.readOnly = false,
   });
 
   @override
@@ -43,6 +47,11 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
   String _patientName = 'Rahim Khan';
   String _patientId = 'patient_rahim_khan';
 
+  bool get _isPatientView =>
+      widget.readOnly ||
+      (Firebase.apps.isNotEmpty &&
+          AuthStateService.instance.currentUserProfile?.role == 'patient');
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +59,9 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
     if (widget.patientId != null) _patientId = widget.patientId!;
     if (widget.patientName != null) _patientName = widget.patientName!;
 
-    _graphService.initializeWithDefaults();
+    if (!_isPatientView) {
+      _graphService.initializeWithDefaults();
+    }
     _nodes = _graphService.nodes;
     _edges = _graphService.edges;
 
@@ -67,6 +78,12 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
     if (mounted) {
       setState(() {
         _allMemories = list;
+        if (_isPatientView) {
+          _graphService.initializeFromMemories(list);
+          _nodes = _graphService.nodes;
+          _edges = _graphService.edges;
+          _selectedNode = _nodes.isEmpty ? null : _nodes.first;
+        }
         _isLoading = false;
       });
     }
@@ -81,7 +98,9 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
   void _onCenterNodeSelected() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$_patientName is the focal patient of this relationship map.'),
+        content: Text(
+          '$_patientName is the focal patient of this relationship map.',
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -111,7 +130,9 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Linked "$name" ($relation) to relationship map!'),
+                content: Text(
+                  'Linked "$name" ($relation) to relationship map!',
+                ),
                 backgroundColor: const Color(0xFF2EAA55),
               ),
             );
@@ -192,17 +213,28 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.photo_library_outlined, size: 44, color: Colors.grey),
+                                const Icon(
+                                  Icons.photo_library_outlined,
+                                  size: 44,
+                                  color: Colors.grey,
+                                ),
                                 const SizedBox(height: 10),
                                 Text(
                                   'No direct memories recorded for ${node.name} yet.',
-                                  style: const TextStyle(color: Color(0xFF64748B)),
+                                  style: const TextStyle(
+                                    color: Color(0xFF64748B),
+                                  ),
                                 ),
                                 const SizedBox(height: 14),
                                 ElevatedButton.icon(
                                   onPressed: () {
                                     Navigator.pop(ctx);
-                                    Navigator.pushNamed(context, AppRoutes.newMemory);
+                                    if (!_isPatientView)
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.newMemory,
+                                        arguments: {'patientId': _patientId},
+                                      );
                                   },
                                   icon: const Icon(Icons.add_rounded),
                                   label: const Text('Add Memory'),
@@ -217,7 +249,8 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
                         : ListView.separated(
                             controller: scrollController,
                             itemCount: linkedMemories.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 14),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 14),
                             itemBuilder: (context, index) {
                               final mem = linkedMemories[index];
                               return SizedBox(
@@ -229,7 +262,9 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
                                     Navigator.pop(ctx);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Selected "${mem.title}"'),
+                                        content: Text(
+                                          'Selected "${mem.title}"',
+                                        ),
                                         duration: const Duration(seconds: 1),
                                       ),
                                     );
@@ -257,11 +292,7 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF041833),
-              Color(0xFF062447),
-              Color(0xFF0B3566),
-            ],
+            colors: [Color(0xFF041833), Color(0xFF062447), Color(0xFF0B3566)],
           ),
         ),
         child: SafeArea(
@@ -306,7 +337,9 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
           // Back button to easily return to Life Story Hub
           GestureDetector(
             onTap: () {
-              Navigator.of(context).pushReplacementNamed(AppRoutes.lifeStoryHub);
+              Navigator.of(
+                context,
+              ).pushReplacementNamed(AppRoutes.lifeStoryHub);
             },
             behavior: HitTestBehavior.opaque,
             child: Container(
@@ -370,9 +403,7 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
       width: double.infinity,
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
@@ -426,11 +457,17 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                     ),
                     child: const Text(
                       'View',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.5,
+                      ),
                     ),
                   ),
                 ],
@@ -453,30 +490,30 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
                     ],
                   ),
 
-                  // "+ Link" Button
-                  GestureDetector(
-                    onTap: _openAddRelationshipSheet,
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(
-                          Icons.add_rounded,
-                          color: Color(0xFF0066BD),
-                          size: 19,
-                        ),
-                        SizedBox(width: 2),
-                        Text(
-                          'Link',
-                          style: TextStyle(
+                  if (!_isPatientView)
+                    GestureDetector(
+                      onTap: _openAddRelationshipSheet,
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(
+                            Icons.add_rounded,
                             color: Color(0xFF0066BD),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            size: 19,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 2),
+                          Text(
+                            'Link',
+                            style: TextStyle(
+                              color: Color(0xFF0066BD),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],
@@ -493,10 +530,7 @@ class _RelationshipMapScreenState extends State<RelationshipMapScreen> {
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 5),
         Text(

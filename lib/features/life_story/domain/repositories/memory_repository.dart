@@ -4,5 +4,8 @@ abstract class MemoryRepository {
   Future<List<MemoryModel>> getMemories({required String patientId});
   Future<MemoryModel> addMemory({required MemoryModel memory});
   Future<void> updateMemory({required MemoryModel memory});
-  Future<void> deleteMemory({required String memoryId, required String patientId});
+  Future<void> deleteMemory({
+    required String memoryId,
+    required String patientId,
+  });
 }

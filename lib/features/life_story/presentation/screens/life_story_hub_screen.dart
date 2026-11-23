@@ -12,10 +12,16 @@ import '../widgets/memory_card.dart';
 
 class LifeStoryHubScreen extends StatefulWidget {
   final MemoryRepository? memoryRepository;
+  final String? patientId;
+  final String? patientName;
+  final bool readOnly;
 
   const LifeStoryHubScreen({
     super.key,
     this.memoryRepository,
+    this.patientId,
+    this.patientName,
+    this.readOnly = false,
   });
 
   @override
@@ -27,21 +33,40 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
   bool _isLoading = true;
   List<MemoryModel> _memories = [];
 
-  String _caregiverName = 'Maimoona';
-  String _patientName = 'Mr. Rahim Khan';
+  String _caregiverName = 'Caregiver';
+  String _patientName = 'Patient';
   String _patientDetails = 'Mild-moderate • 74 yrs';
-  String _patientId = 'patient_rahim_khan';
+  String _patientId = '';
   final int _recallPercentage = 75;
+
+  bool get _isPatientView =>
+      widget.readOnly ||
+      (Firebase.apps.isNotEmpty &&
+          AuthStateService.instance.currentUserProfile?.role == 'patient');
 
   @override
   void initState() {
     super.initState();
     _memoryRepository = widget.memoryRepository ?? MemoryRepositoryImpl();
+    if (widget.patientId != null) _patientId = widget.patientId!;
+    if (widget.patientName != null) _patientName = widget.patientName!;
     _loadHubData();
   }
 
   Future<void> _loadHubData() async {
-    if (Firebase.apps.isNotEmpty) {
+    if (_isPatientView) {
+      final firebaseUser = Firebase.apps.isNotEmpty
+          ? AuthStateService.instance.currentFirebaseUser
+          : null;
+      _patientId = _patientId.isNotEmpty ? _patientId : firebaseUser?.uid ?? '';
+      _patientName =
+          widget.patientName ??
+          (Firebase.apps.isNotEmpty
+              ? AuthStateService.instance.currentUserProfile?.name
+              : null) ??
+          firebaseUser?.displayName ??
+          'My';
+    } else if (Firebase.apps.isNotEmpty) {
       try {
         final user = AuthStateService.instance.currentUserProfile;
         if (user != null && user.name.isNotEmpty) {
@@ -50,14 +75,14 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
 
         final firebaseUser = AuthStateService.instance.currentFirebaseUser;
         if (firebaseUser != null) {
-          final patients = await CaregiverRepositoryImpl().getLinkedPatientProfiles(
-            caregiverId: firebaseUser.uid,
-          );
+          final patients = await CaregiverRepositoryImpl()
+              .getLinkedPatientProfiles(caregiverId: firebaseUser.uid);
           if (patients.isNotEmpty) {
             final p = patients.first;
             _patientName = p.name;
             _patientId = p.uid;
-            final health = await CaregiverRepositoryImpl().getPatientHealthProfile(patientId: p.uid);
+            final health = await CaregiverRepositoryImpl()
+                .getPatientHealthProfile(patientId: p.uid);
             if (health != null) {
               _patientDetails = '${health.dementiaStage} stage';
             }
@@ -66,6 +91,10 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
       } catch (_) {}
     }
 
+    if (_patientId.isEmpty) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
     final list = await _memoryRepository.getMemories(patientId: _patientId);
     if (mounted) {
       setState(() {
@@ -127,14 +156,22 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.primary),
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         '${memory.date.day} ${_monthName(memory.date.month)} ${memory.date.year}',
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(width: 16),
-                      const Icon(Icons.location_on_outlined, size: 18, color: AppColors.brandTeal),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 18,
+                        color: AppColors.brandTeal,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         memory.place,
@@ -144,7 +181,10 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                   ),
                   const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
@@ -220,18 +260,27 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                           const CircleAvatar(
                             backgroundColor: Color(0xFF2EAA55),
                             radius: 18,
-                            child: Icon(Icons.play_arrow_rounded, color: Colors.white),
+                            child: Icon(
+                              Icons.play_arrow_rounded,
+                              color: Colors.white,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           const Expanded(
                             child: Text(
                               'Voice memory recorded by Caregiver',
-                              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                           Text(
                             '0:${memory.audioDurationSeconds.toString().padLeft(2, '0')}',
-                            style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B),
+                            ),
                           ),
                         ],
                       ),
@@ -251,12 +300,21 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: const Row(
             children: [
-              Icon(Icons.psychology_rounded, color: Color(0xFF2EAA55), size: 28),
+              Icon(
+                Icons.psychology_rounded,
+                color: Color(0xFF2EAA55),
+                size: 28,
+              ),
               SizedBox(width: 10),
-              Text('Recall Session (FE-5)', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Recall Session (FE-5)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           content: Column(
@@ -265,12 +323,19 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
             children: [
               const Text(
                 'Next session scheduled for 5:00 PM',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.titleNavy),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.titleNavy,
+                ),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Includes 8 photos ready for "Who is this?" and "Do you remember?" interactive recall.\n\nAll photos and tagged people stored in FE-1 will automatically power this recall session.',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 16),
               Container(
@@ -281,7 +346,11 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.check_circle_outline, color: Color(0xFF2EAA55), size: 20),
+                    Icon(
+                      Icons.check_circle_outline,
+                      color: Color(0xFF2EAA55),
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -306,21 +375,36 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
             OutlinedButton(
               onPressed: () {
                 Navigator.pop(ctx);
-                Navigator.pushNamed(context, AppRoutes.recallPrompts);
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.recallPrompts,
+                  arguments: {
+                    'patientId': _patientId,
+                    'readOnly': _isPatientView,
+                  },
+                );
               },
               child: const Text('Recall Prompts (FE-4)'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                Navigator.pushNamed(context, AppRoutes.memoryLibrary);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2EAA55),
-                foregroundColor: Colors.white,
+            if (!_isPatientView)
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.memoryLibrary,
+                    arguments: {
+                      'patientId': _patientId,
+                      'readOnly': _isPatientView,
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2EAA55),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Review Photos'),
               ),
-              child: const Text('Review Photos'),
-            ),
           ],
         );
       },
@@ -329,8 +413,18 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
 
   String _monthName(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[(month - 1).clamp(0, 11)];
   }
@@ -340,7 +434,9 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : Column(
               children: [
                 Expanded(
@@ -360,8 +456,10 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Continue building',
+                              Text(
+                                _isPatientView
+                                    ? 'My Memories'
+                                    : '${_patientName}\'s Memories',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -369,19 +467,27 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                                   letterSpacing: -0.2,
                                 ),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, AppRoutes.memoryLibrary);
-                                },
-                                child: const Text(
-                                  'See all',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
+                              if (!_isPatientView)
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.memoryLibrary,
+                                      arguments: {
+                                        'patientId': _patientId,
+                                        'readOnly': _isPatientView,
+                                      },
+                                    );
+                                  },
+                                  child: const Text(
+                                    'See all',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
@@ -392,13 +498,22 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                         SizedBox(
                           height: 140,
                           child: _memories.isEmpty
-                              ? const Center(child: Text('No memories yet. Tap + below to add one!'))
+                              ? Center(
+                                  child: Text(
+                                    _isPatientView
+                                        ? 'Your memories will appear here when your caregiver adds them.'
+                                        : 'No memories yet. Tap + below to add one!',
+                                  ),
+                                )
                               : ListView.separated(
                                   scrollDirection: Axis.horizontal,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
                                   physics: const BouncingScrollPhysics(),
                                   itemCount: _memories.length,
-                                  separatorBuilder: (context, index) => const SizedBox(width: 14),
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(width: 14),
                                   itemBuilder: (context, index) {
                                     final memory = _memories[index];
                                     return SizedBox(
@@ -421,7 +536,10 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                             onTap: _showRecallSessionDialog,
                             child: Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 16,
+                              ),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   begin: Alignment.topLeft,
@@ -434,7 +552,9 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF2EAA55).withValues(alpha: 0.35),
+                                    color: const Color(
+                                      0xFF2EAA55,
+                                    ).withValues(alpha: 0.35),
                                     blurRadius: 14,
                                     offset: const Offset(0, 4),
                                   ),
@@ -447,7 +567,9 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.22),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.22,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Center(
@@ -463,7 +585,8 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                                   // Text Content
                                   const Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
@@ -503,6 +626,13 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                 LifeStoryBottomBar(
                   currentIndex: 0,
                   onTap: (index) {},
+                  readOnly:
+                      widget.readOnly ||
+                      (Firebase.apps.isNotEmpty &&
+                          AuthStateService.instance.currentUserProfile?.role ==
+                              'patient'),
+                  patientId: _patientId,
+                  patientName: _patientName,
                 ),
               ],
             ),
@@ -516,15 +646,9 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF0F325E),
-            Color(0xFF135896),
-            Color(0xFF1A6CB0),
-          ],
+          colors: [Color(0xFF0F325E), Color(0xFF135896), Color(0xFF1A6CB0)],
         ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(32),
-        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: SafeArea(
         bottom: false,
@@ -535,31 +659,47 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
             children: [
               // Top Bar: Greeting & Notifications
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Good evening',
-                        style: TextStyle(
-                          color: Color(0xFFBFDBFE),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _caregiverName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.4,
-                        ),
-                      ),
-                    ],
+                  IconButton(
+                    tooltip: 'Back',
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Good evening',
+                          style: TextStyle(
+                            color: Color(0xFFBFDBFE),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _caregiverName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
                   Container(
                     width: 42,
                     height: 42,
@@ -609,10 +749,7 @@ class _LifeStoryHubScreenState extends State<LifeStoryHubScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.25),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 2.0,
-                        ),
+                        border: Border.all(color: Colors.white, width: 2.0),
                       ),
                       child: const Center(
                         child: Icon(

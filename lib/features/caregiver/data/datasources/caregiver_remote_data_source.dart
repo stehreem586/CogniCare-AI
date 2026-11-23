@@ -6,8 +6,12 @@ import '../../../profile/data/models/user_profile.dart';
 import '../models/caregiver_patient_link.dart';
 
 abstract class CaregiverRemoteDataSource {
-  Future<List<CaregiverPatientLink>> getLinkedPatients({required String caregiverId});
-  Future<List<UserProfile>> getLinkedPatientProfiles({required String caregiverId});
+  Future<List<CaregiverPatientLink>> getLinkedPatients({
+    required String caregiverId,
+  });
+  Future<List<UserProfile>> getLinkedPatientProfiles({
+    required String caregiverId,
+  });
   Future<UserProfile?> getPatientProfile({required String patientId});
   Future<HealthProfile?> getPatientHealthProfile({required String patientId});
   Future<void> updatePatientProfile({required UserProfile profile});
@@ -25,10 +29,12 @@ class CaregiverRemoteDataSourceImpl implements CaregiverRemoteDataSource {
   final FirebaseFirestore _firestore;
 
   CaregiverRemoteDataSourceImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
-  Future<List<CaregiverPatientLink>> getLinkedPatients({required String caregiverId}) async {
+  Future<List<CaregiverPatientLink>> getLinkedPatients({
+    required String caregiverId,
+  }) async {
     try {
       final snapshot = await _firestore
           .collection(FirestoreConstants.caregiverPatientLinksCollection)
@@ -44,7 +50,9 @@ class CaregiverRemoteDataSourceImpl implements CaregiverRemoteDataSource {
   }
 
   @override
-  Future<List<UserProfile>> getLinkedPatientProfiles({required String caregiverId}) async {
+  Future<List<UserProfile>> getLinkedPatientProfiles({
+    required String caregiverId,
+  }) async {
     try {
       final links = await getLinkedPatients(caregiverId: caregiverId);
       if (links.isEmpty) return [];
@@ -80,7 +88,9 @@ class CaregiverRemoteDataSourceImpl implements CaregiverRemoteDataSource {
   }
 
   @override
-  Future<HealthProfile?> getPatientHealthProfile({required String patientId}) async {
+  Future<HealthProfile?> getPatientHealthProfile({
+    required String patientId,
+  }) async {
     try {
       final doc = await _firestore
           .collection(FirestoreConstants.usersCollection)
@@ -102,7 +112,9 @@ class CaregiverRemoteDataSourceImpl implements CaregiverRemoteDataSource {
   Future<void> updatePatientProfile({required UserProfile profile}) async {
     try {
       if (profile.uid.isEmpty) {
-        throw const AppException('Patient ID is missing. Cannot update profile.');
+        throw const AppException(
+          'Patient ID is missing. Cannot update profile.',
+        );
       }
       final profileMap = profile.toMap();
       profileMap['updatedAt'] = FieldValue.serverTimestamp();
@@ -139,22 +151,37 @@ class CaregiverRemoteDataSourceImpl implements CaregiverRemoteDataSource {
     required String patientEmail,
   }) async {
     try {
-      final querySnapshot = await _firestore
-          .collection(FirestoreConstants.usersCollection)
-          .where(FirestoreConstants.fieldEmail, isEqualTo: patientEmail.trim().toLowerCase())
+      final normalizedEmail = patientEmail.trim().toLowerCase();
+      final lookup = await _firestore
+          .collection(FirestoreConstants.userLookupCollection)
+          .doc(normalizedEmail)
           .get();
 
-      if (querySnapshot.docs.isEmpty) {
+      String? patientId;
+      if (lookup.exists && lookup.data() != null) {
+        final lookupData = lookup.data()!;
+        if (lookupData[FirestoreConstants.fieldRole] != 'patient') {
+          throw const AppException(
+            'The account with this email is not a patient.',
+          );
+        }
+        patientId = lookupData[FirestoreConstants.fieldUid] as String?;
+      } else {
+        // Compatibility path for patient profiles created before userLookup.
+        final legacyPatients = await _firestore
+            .collection(FirestoreConstants.usersCollection)
+            .where(FirestoreConstants.fieldEmail, isEqualTo: normalizedEmail)
+            .where(FirestoreConstants.fieldRole, isEqualTo: 'patient')
+            .limit(1)
+            .get();
+        if (legacyPatients.docs.isNotEmpty) {
+          patientId = legacyPatients.docs.first.id;
+        }
+      }
+
+      if (patientId == null || patientId.isEmpty) {
         throw const AppException('No patient found with this email address.');
       }
-
-      final patientDoc = querySnapshot.docs.first;
-      final patientRole = patientDoc.data()[FirestoreConstants.fieldRole];
-      if (patientRole != 'patient') {
-        throw const AppException('The account with this email is not a patient.');
-      }
-
-      final patientId = patientDoc.id;
 
       // Check if link already exists
       final existingLink = await _firestore

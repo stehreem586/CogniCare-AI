@@ -18,6 +18,7 @@ class LifeTimelineScreen extends StatefulWidget {
   final String? patientId;
   final String? patientName;
   final int? patientBirthYear;
+  final bool readOnly;
 
   const LifeTimelineScreen({
     super.key,
@@ -25,6 +26,7 @@ class LifeTimelineScreen extends StatefulWidget {
     this.patientId,
     this.patientName,
     this.patientBirthYear,
+    this.readOnly = false,
   });
 
   @override
@@ -43,25 +45,30 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
   String _selectedEra = 'Childhood';
   final List<String> _eras = const ['Childhood', 'Adulthood', 'Recent'];
 
+  bool get _isPatientView =>
+      widget.readOnly ||
+      (Firebase.apps.isNotEmpty &&
+          AuthStateService.instance.currentUserProfile?.role == 'patient');
+
   @override
   void initState() {
     super.initState();
     _memoryRepository = widget.memoryRepository ?? MemoryRepositoryImpl();
     if (widget.patientId != null) _patientId = widget.patientId!;
     if (widget.patientName != null) _patientName = widget.patientName!;
-    if (widget.patientBirthYear != null) _patientBirthYear = widget.patientBirthYear!;
+    if (widget.patientBirthYear != null)
+      _patientBirthYear = widget.patientBirthYear!;
 
     _loadData();
   }
 
   Future<void> _loadData() async {
-    if (Firebase.apps.isNotEmpty) {
+    if (Firebase.apps.isNotEmpty && !_isPatientView) {
       try {
         final firebaseUser = AuthStateService.instance.currentFirebaseUser;
         if (firebaseUser != null) {
-          final patients = await CaregiverRepositoryImpl().getLinkedPatientProfiles(
-            caregiverId: firebaseUser.uid,
-          );
+          final patients = await CaregiverRepositoryImpl()
+              .getLinkedPatientProfiles(caregiverId: firebaseUser.uid);
           if (patients.isNotEmpty) {
             final p = patients.first;
             _patientName = p.name.split(' ').first;
@@ -88,7 +95,8 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
       // the graduation transition milestone into early adulthood.
       filtered = _allMemories.where((m) {
         return m.era.toLowerCase() == 'childhood' ||
-            (m.title.toLowerCase().contains('graduation') && m.date.year <= 2005);
+            (m.title.toLowerCase().contains('graduation') &&
+                m.date.year <= 2005);
       }).toList();
     } else if (_selectedEra == 'Adulthood') {
       filtered = _allMemories.where((m) {
@@ -158,26 +166,43 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.primary),
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         '${memory.date.year} (Age $age)',
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
+                        ),
                       ),
                       if (memory.place.isNotEmpty) ...[
                         const SizedBox(width: 16),
-                        const Icon(Icons.location_on_outlined, size: 18, color: AppColors.brandTeal),
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 18,
+                          color: AppColors.brandTeal,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           memory.place,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13.5,
+                          ),
                         ),
                       ],
                     ],
                   ),
                   const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
@@ -253,13 +278,19 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
                           const CircleAvatar(
                             backgroundColor: Color(0xFF2EAA55),
                             radius: 18,
-                            child: Icon(Icons.play_arrow_rounded, color: Colors.white),
+                            child: Icon(
+                              Icons.play_arrow_rounded,
+                              color: Colors.white,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           const Expanded(
                             child: Text(
                               'Voice recording available',
-                              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                           Text(
@@ -289,7 +320,9 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : Column(
               children: [
                 Expanded(
@@ -302,42 +335,35 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
                       ),
                       slivers: [
                         // 1. Deep Navy Curved Header with Segmented Filter
-                        SliverToBoxAdapter(
-                          child: _buildHeader(),
-                        ),
+                        SliverToBoxAdapter(child: _buildHeader()),
 
-                        const SliverToBoxAdapter(
-                          child: SizedBox(height: 24),
-                        ),
+                        const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
                         // 2. Timeline List or Empty State
                         if (filteredMemories.isEmpty)
-                          SliverToBoxAdapter(
-                            child: _buildEmptyState(),
-                          )
+                          SliverToBoxAdapter(child: _buildEmptyState())
                         else
                           SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final memory = filteredMemories[index];
-                                final isFirst = index == 0;
-                                final isLast = index == filteredMemories.length - 1;
+                            delegate: SliverChildBuilderDelegate((
+                              context,
+                              index,
+                            ) {
+                              final memory = filteredMemories[index];
+                              final isFirst = index == 0;
+                              final isLast =
+                                  index == filteredMemories.length - 1;
 
-                                return TimelineItemCard(
-                                  memory: memory,
-                                  isFirst: isFirst,
-                                  isLast: isLast,
-                                  patientBirthYear: _patientBirthYear,
-                                  onTap: () => _showMemoryDetail(memory),
-                                );
-                              },
-                              childCount: filteredMemories.length,
-                            ),
+                              return TimelineItemCard(
+                                memory: memory,
+                                isFirst: isFirst,
+                                isLast: isLast,
+                                patientBirthYear: _patientBirthYear,
+                                onTap: () => _showMemoryDetail(memory),
+                              );
+                            }, childCount: filteredMemories.length),
                           ),
 
-                        const SliverToBoxAdapter(
-                          child: SizedBox(height: 20),
-                        ),
+                        const SliverToBoxAdapter(child: SizedBox(height: 20)),
                       ],
                     ),
                   ),
@@ -347,6 +373,9 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
                 LifeStoryBottomBar(
                   currentIndex: 2,
                   onTap: (index) {},
+                  readOnly: _isPatientView,
+                  patientId: _patientId,
+                  patientName: _patientName,
                 ),
               ],
             ),
@@ -360,15 +389,9 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF0F325E),
-            Color(0xFF135896),
-            Color(0xFF1A6CB0),
-          ],
+          colors: [Color(0xFF0F325E), Color(0xFF135896), Color(0xFF1A6CB0)],
         ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(32),
-        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: Stack(
         children: [
@@ -468,9 +491,13 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
                   child: Text(
                     era,
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFF0F325E) : Colors.white,
+                      color: isSelected
+                          ? const Color(0xFF0F325E)
+                          : Colors.white,
                       fontSize: 13.5,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -521,24 +548,31 @@ class _LifeTimelineScreenState extends State<LifeTimelineScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.of(context).pushNamed(
-                AppRoutes.newMemory,
-                arguments: _selectedEra,
-              );
-            },
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: Text('Add $_selectedEra memory'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2EAA55),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+          if (!_isPatientView)
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  AppRoutes.newMemory,
+                  arguments: {
+                    'patientId': _patientId,
+                    'era': _selectedEra,
+                  },
+                );
+              },
+              icon: const Icon(Icons.add_rounded, size: 20),
+              label: Text('Add $_selectedEra memory'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2EAA55),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

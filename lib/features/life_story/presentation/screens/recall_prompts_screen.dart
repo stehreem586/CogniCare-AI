@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../services/auth_state_service.dart';
 import '../../data/models/memory_model.dart';
 import '../../data/models/recall_prompt_model.dart';
 import '../../data/datasources/recall_prompt_service.dart';
@@ -13,11 +15,13 @@ import '../widgets/memory_illustration.dart';
 class RecallPromptsScreen extends StatefulWidget {
   final MemoryRepository? memoryRepository;
   final String? patientId;
+  final bool readOnly;
 
   const RecallPromptsScreen({
     super.key,
     this.memoryRepository,
     this.patientId,
+    this.readOnly = false,
   });
 
   @override
@@ -32,8 +36,16 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
   List<MemoryModel> _memories = [];
   List<RecallPromptModel> _prompts = [];
   int _featuredIndex = 0;
+  String _activityType = 'Who is this?';
+  String? _activityFeedback;
+  bool _showHint = false;
 
   String _patientId = 'patient_rahim_khan';
+
+  bool get _isPatientView =>
+      widget.readOnly ||
+      (Firebase.apps.isNotEmpty &&
+          AuthStateService.instance.currentUserProfile?.role == 'patient');
 
   @override
   void initState() {
@@ -41,7 +53,9 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
     _memoryRepository = widget.memoryRepository ?? MemoryRepositoryImpl();
     if (widget.patientId != null) _patientId = widget.patientId!;
 
-    _promptService.initializeWithDefaults();
+    if (!_isPatientView) {
+      _promptService.initializeWithDefaults();
+    }
     _prompts = _promptService.prompts;
 
     _loadData();
@@ -52,6 +66,11 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
     if (mounted) {
       setState(() {
         _memories = list;
+        if (_isPatientView) {
+          _prompts = list.isEmpty
+              ? const []
+              : [_promptService.generatePromptFromMemories(list)];
+        }
         _isLoading = false;
       });
     }
@@ -156,19 +175,26 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final featuredPrompt = _prompts.isNotEmpty && _featuredIndex < _prompts.length
+    final featuredPrompt =
+        _prompts.isNotEmpty && _featuredIndex < _prompts.length
         ? _prompts[_featuredIndex]
         : null;
 
-    final queuedPrompts = _prompts.asMap().entries
+    final queuedPrompts = _prompts
+        .asMap()
+        .entries
         .where((entry) => entry.key != _featuredIndex)
         .map((entry) => MapEntry(entry.key, entry.value))
         .toList();
 
+    if (_isPatientView) return _buildPatientActivity();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : Column(
               children: [
                 Expanded(
@@ -221,6 +247,141 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
     );
   }
 
+  Widget _buildPatientActivity() {
+    final memory = _memories.isEmpty ? null : _memories.first;
+    final answer = memory == null
+        ? null
+        : _activityType == 'Who is this?'
+        ? (memory.taggedPeople.isEmpty
+              ? memory.place
+              : memory.taggedPeople.first)
+        : memory.title;
+    final options = memory == null
+        ? const <String>[]
+        : <String>{
+            answer ?? 'This memory',
+            if (memory.place.isNotEmpty) memory.place,
+            ...memory.taggedPeople.take(2),
+            'I am not sure',
+          }.toList();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(title: const Text('Memory Activity')),
+      body: memory == null
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Text(
+                  'There are no saved memories to explore yet.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => setState(() {
+                          _activityType = 'Who is this?';
+                          _activityFeedback = null;
+                          _showHint = false;
+                        }),
+                        child: const Text('Who is this?'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => setState(() {
+                          _activityType = 'Do you remember?';
+                          _activityFeedback = null;
+                          _showHint = false;
+                        }),
+                        child: const Text('Do you remember?'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                MemoryIllustration(
+                  illustrationKey: memory.illustrationKey,
+                  localImagePath: memory.localImagePath,
+                  photoBase64: memory.photoBase64,
+                  photoUrl: memory.photoUrl,
+                  height: 210,
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  _activityType == 'Who is this?'
+                      ? 'Who is in this memory?'
+                      : 'Do you remember ${memory.title}?',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.titleNavy,
+                  ),
+                ),
+                if (_showHint) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    'Hint: ${memory.place.isNotEmpty ? 'This memory is connected to ${memory.place}.' : 'Look at the picture and take your time.'}',
+                    style: const TextStyle(
+                      fontSize: 17,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                ...options.map(
+                  (option) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: OutlinedButton(
+                      onPressed: () => setState(() {
+                        _activityFeedback = option == answer
+                            ? 'That is a lovely memory. Well done.'
+                            : 'That is okay. Memories can be hard to recall. The answer is ${answer ?? 'in this memory'}.';
+                      }),
+                      child: Text(option, style: const TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                ),
+                if (_activityFeedback != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      _activityFeedback!,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        color: AppColors.brandTeal,
+                      ),
+                    ),
+                  ),
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () => setState(() => _showHint = true),
+                      child: const Text('Hint'),
+                    ),
+                    TextButton(
+                      onPressed: () => setState(() {
+                        _activityFeedback =
+                            'That is okay. You can try another memory when you are ready.';
+                      }),
+                      child: const Text('Skip'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+    );
+  }
+
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
@@ -228,15 +389,9 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF0F325E),
-            Color(0xFF135896),
-            Color(0xFF1A6CB0),
-          ],
+          colors: [Color(0xFF0F325E), Color(0xFF135896), Color(0xFF1A6CB0)],
         ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(32),
-        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: SafeArea(
         bottom: false,
@@ -248,7 +403,9 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
               // Back Button
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushReplacementNamed(AppRoutes.lifeStoryHub);
+                  Navigator.of(
+                    context,
+                  ).pushReplacementNamed(AppRoutes.lifeStoryHub);
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Container(
@@ -299,7 +456,10 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
                 onTap: _generateAIPrompt,
                 behavior: HitTestBehavior.opaque,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20),
@@ -311,11 +471,7 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      Icon(
-                        Icons.auto_awesome,
-                        color: Colors.white,
-                        size: 15,
-                      ),
+                      Icon(Icons.auto_awesome, color: Colors.white, size: 15),
                       SizedBox(width: 5),
                       Text(
                         'AI',
@@ -375,7 +531,10 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
                   top: 14,
                   left: 14,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0066BD),
                       borderRadius: BorderRadius.circular(16),
@@ -449,7 +608,9 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF2EAA55).withValues(alpha: 0.35),
+                                  color: const Color(
+                                    0xFF2EAA55,
+                                  ).withValues(alpha: 0.35),
                                   blurRadius: 10,
                                   offset: const Offset(0, 3),
                                 ),
@@ -604,10 +765,7 @@ class _RecallPromptsScreenState extends State<RecallPromptsScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFEBF5FF),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFBFDBFE),
-            width: 1.0,
-          ),
+          border: Border.all(color: const Color(0xFFBFDBFE), width: 1.0),
         ),
         child: Row(
           children: [

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_loader.dart';
-import '../../../../core/widgets/cognicare_bottom_bar.dart';
 import '../../../../services/auth_state_service.dart';
 import '../../../authentication/data/repositories/auth_repository_impl.dart';
 import '../../data/models/user_profile.dart';
@@ -18,7 +17,6 @@ class PatientProfileScreen extends StatefulWidget {
 }
 
 class _PatientProfileScreenState extends State<PatientProfileScreen> {
-  int _selectedBottomIndex = 1;
   bool _isLoading = true;
   UserProfile? _profile;
 
@@ -31,15 +29,19 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
   Future<void> _loadProfile() async {
     final firebaseUser = AuthStateService.instance.currentFirebaseUser;
     if (firebaseUser != null) {
-      final userProfile = await ProfileRepositoryImpl().getUserProfile(uid: firebaseUser.uid);
+      final userProfile = await ProfileRepositoryImpl().getUserProfile(
+        uid: firebaseUser.uid,
+      );
       if (mounted) {
         setState(() {
-          _profile = userProfile ?? UserProfile(
-            uid: firebaseUser.uid,
-            role: 'patient',
-            name: firebaseUser.displayName ?? 'Patient',
-            email: firebaseUser.email ?? '',
-          );
+          _profile =
+              userProfile ??
+              UserProfile(
+                uid: firebaseUser.uid,
+                role: 'patient',
+                name: firebaseUser.displayName ?? 'Patient',
+                email: firebaseUser.email ?? '',
+              );
           _isLoading = false;
         });
       }
@@ -57,7 +59,9 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Logout'),
-        content: const Text('Are you sure you want to log out of CogniCare AI?'),
+        content: const Text(
+          'Are you sure you want to log out of CogniCare AI?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -76,7 +80,9 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
       await AuthRepositoryImpl().signOut();
       AuthStateService.instance.setCurrentUser(null);
       if (!mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
     }
   }
 
@@ -114,7 +120,10 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
               child: SafeArea(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 16.0,
+                  ),
                   child: Column(
                     children: [
                       ProfileAvatarWidget(
@@ -129,7 +138,8 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      if (_profile?.phone != null && _profile!.phone!.isNotEmpty) ...[
+                      if (_profile?.phone != null &&
+                          _profile!.phone!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           'Phone: ${_profile!.phone}',
@@ -139,7 +149,8 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                           ),
                         ),
                       ],
-                      if (_profile?.dateOfBirth != null && _profile!.dateOfBirth!.isNotEmpty) ...[
+                      if (_profile?.dateOfBirth != null &&
+                          _profile!.dateOfBirth!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           'DOB: ${_profile!.dateOfBirth}',
@@ -153,7 +164,8 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                       ProfileMenuItemCard(
                         icon: Icons.edit_outlined,
                         title: 'Edit Personal Information',
-                        subtitle: 'Update name, phone number, and date of birth',
+                        subtitle:
+                            'Update name, phone number, and date of birth',
                         onTap: () async {
                           await Navigator.pushNamed(
                             context,
@@ -216,14 +228,6 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                 ),
               ),
             ),
-      bottomNavigationBar: CogniCareBottomBar(
-        currentIndex: _selectedBottomIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedBottomIndex = index;
-          });
-        },
-      ),
     );
   }
 }

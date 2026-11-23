@@ -19,6 +19,7 @@ import '../features/life_story/presentation/screens/memory_library_screen.dart';
 import '../features/life_story/presentation/screens/life_timeline_screen.dart';
 import '../features/life_story/presentation/screens/relationship_map_screen.dart';
 import '../features/life_story/presentation/screens/recall_prompts_screen.dart';
+import '../features/profile/data/models/user_profile.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -44,29 +45,81 @@ class AppRoutes {
   static const String recallPrompts = '/recall-prompts';
 
   static Map<String, WidgetBuilder> get routes => {
-        splash: (context) => const SplashScreen(),
-        roleSelection: (context) => const RoleSelectionScreen(),
-        login: (context) => const LoginScreen(),
-        signup: (context) => const SignupScreen(),
-        forgotPassword: (context) => const ForgotPasswordScreen(),
-        patientProfile: (context) => const PatientProfileScreen(),
-        caregiverProfile: (context) => const CaregiverProfileScreen(),
-        healthProfile: (context) => const HealthProfileScreen(),
-        emergencyContacts: (context) => const EmergencyContactsScreen(),
-        editPatientProfile: (context) => const EditPatientProfileScreen(),
-        caregiverDashboard: (context) => const CaregiverDashboard(),
-        linkedPatient: (context) => const LinkedPatientScreen(),
-        lifeStoryHub: (context) => const LifeStoryHubScreen(),
-        newMemory: (context) => const NewMemoryScreen(),
-        memoryLibrary: (context) => const MemoryLibraryScreen(),
-        lifeTimeline: (context) => const LifeTimelineScreen(),
-        relationshipMap: (context) => const RelationshipMapScreen(),
-        recallPrompts: (context) => const RecallPromptsScreen(),
-        adaptiveTherapy: (context) {
-          final tab = ModalRoute.of(context)?.settings.arguments;
-          return AssessmentModule(
-            initialTab: tab is TherapyModuleTab ? tab : TherapyModuleTab.home,
-          );
-        },
-      };
+    splash: (context) => const SplashScreen(),
+    roleSelection: (context) => const RoleSelectionScreen(),
+    login: (context) => const LoginScreen(),
+    signup: (context) => const SignupScreen(),
+    forgotPassword: (context) => const ForgotPasswordScreen(),
+    patientProfile: (context) => const PatientProfileScreen(),
+    caregiverProfile: (context) => const CaregiverProfileScreen(),
+    healthProfile: (context) => const HealthProfileScreen(),
+    emergencyContacts: (context) => const EmergencyContactsScreen(),
+    editPatientProfile: (context) => const EditPatientProfileScreen(),
+    caregiverDashboard: (context) => const CaregiverDashboard(),
+    linkedPatient: (context) => const LinkedPatientScreen(),
+    lifeStoryHub: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is UserProfile) {
+        return LifeStoryHubScreen(
+          patientId: args.uid,
+          patientName: args.name,
+          // This route is used from the caregiver's linked-patient screen.
+          // The linked patient's role must not change the caregiver's view
+          // mode; the signed-in viewer determines whether this is read-only.
+          readOnly: false,
+        );
+      }
+      final map = args is Map ? args : const {};
+      return LifeStoryHubScreen(
+        patientId: map['patientId'] as String?,
+        patientName: map['patientName'] as String?,
+        readOnly: map['readOnly'] == true,
+      );
+    },
+    newMemory: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final map = args is Map ? args : const {};
+      return NewMemoryScreen(patientId: map['patientId'] as String?);
+    },
+    memoryLibrary: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final map = args is Map ? args : const {};
+      return MemoryLibraryScreen(
+        patientId: map['patientId'] as String?,
+        readOnly: map['readOnly'] == true,
+      );
+    },
+    lifeTimeline: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final map = args is Map ? args : const {};
+      return LifeTimelineScreen(
+        patientId: map['patientId'] as String?,
+        patientName: map['patientName'] as String?,
+        readOnly: map['readOnly'] == true,
+      );
+    },
+    relationshipMap: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final map = args is Map ? args : const {};
+      return RelationshipMapScreen(
+        patientId: map['patientId'] as String?,
+        patientName: map['patientName'] as String?,
+        readOnly: map['readOnly'] == true,
+      );
+    },
+    recallPrompts: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final map = args is Map ? args : const {};
+      return RecallPromptsScreen(
+        patientId: map['patientId'] as String?,
+        readOnly: map['readOnly'] == true,
+      );
+    },
+    adaptiveTherapy: (context) {
+      final tab = ModalRoute.of(context)?.settings.arguments;
+      return AssessmentModule(
+        initialTab: tab is TherapyModuleTab ? tab : TherapyModuleTab.home,
+      );
+    },
+  };
 }

@@ -7,7 +7,10 @@ abstract class MemoryRemoteDataSource {
   Future<List<MemoryModel>> getMemories({required String patientId});
   Future<MemoryModel> addMemory({required MemoryModel memory});
   Future<void> updateMemory({required MemoryModel memory});
-  Future<void> deleteMemory({required String memoryId, required String patientId});
+  Future<void> deleteMemory({
+    required String memoryId,
+    required String patientId,
+  });
 }
 
 class MemoryRemoteDataSourceImpl implements MemoryRemoteDataSource {
@@ -17,7 +20,7 @@ class MemoryRemoteDataSourceImpl implements MemoryRemoteDataSource {
   static final Map<String, List<MemoryModel>> _cachedMemories = {};
 
   MemoryRemoteDataSourceImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   static List<MemoryModel> getDemoMemories(String patientId) {
     return [
@@ -133,7 +136,7 @@ class MemoryRemoteDataSourceImpl implements MemoryRemoteDataSource {
 
   @override
   Future<List<MemoryModel>> getMemories({required String patientId}) async {
-    // If Firebase is not initialized (e.g. widget tests or offline mock), return cached/demo data immediately
+    // Widget tests can use the deterministic demo fixture without Firebase.
     if (Firebase.apps.isEmpty) {
       if (!_cachedMemories.containsKey(patientId) ||
           _cachedMemories[patientId]!.isEmpty) {
@@ -158,15 +161,13 @@ class MemoryRemoteDataSourceImpl implements MemoryRemoteDataSource {
         _cachedMemories[patientId] = list;
         return list;
       }
+      _cachedMemories[patientId] = [];
+      return const [];
     } catch (_) {
-      // Fallback to cache / demo data if Firestore is offline or empty
+      // Never show another patient's/demo content when the real data cannot
+      // be read. A cached list is safe because it is keyed by patientId.
+      return _cachedMemories[patientId] ?? const [];
     }
-
-    if (!_cachedMemories.containsKey(patientId) ||
-        _cachedMemories[patientId]!.isEmpty) {
-      _cachedMemories[patientId] = getDemoMemories(patientId);
-    }
-    return _cachedMemories[patientId]!;
   }
 
   @override
@@ -192,28 +193,24 @@ class MemoryRemoteDataSourceImpl implements MemoryRemoteDataSource {
 
       _updateLocalCache(newMemory);
       return newMemory;
-    } catch (_) {
-      // Fallback local memory addition
-      final localId = memory.id.isNotEmpty
-          ? memory.id
-          : 'mem_${DateTime.now().millisecondsSinceEpoch}';
-      final newMemory = memory.copyWith(id: localId);
-      _updateLocalCache(newMemory);
-      return newMemory;
+    } catch (error) {
+      rethrow;
     }
   }
 
   @override
   Future<void> updateMemory({required MemoryModel memory}) async {
-    try {
-      await _firestore
-          .collection(FirestoreConstants.usersCollection)
-          .doc(memory.patientId)
-          .collection(FirestoreConstants.memoriesCollection)
-          .doc(memory.id)
-          .update(memory.toMap())
-          .timeout(const Duration(seconds: 4));
-    } catch (_) {}
+    if (Firebase.apps.isEmpty) {
+      _updateLocalCache(memory);
+      return;
+    }
+    await _firestore
+        .collection(FirestoreConstants.usersCollection)
+        .doc(memory.patientId)
+        .collection(FirestoreConstants.memoriesCollection)
+        .doc(memory.id)
+        .update(memory.toMap())
+        .timeout(const Duration(seconds: 4));
 
     _updateLocalCache(memory);
   }
@@ -223,15 +220,19 @@ class MemoryRemoteDataSourceImpl implements MemoryRemoteDataSource {
     required String memoryId,
     required String patientId,
   }) async {
-    try {
-      await _firestore
-          .collection(FirestoreConstants.usersCollection)
-          .doc(patientId)
-          .collection(FirestoreConstants.memoriesCollection)
-          .doc(memoryId)
-          .delete()
-          .timeout(const Duration(seconds: 4));
-    } catch (_) {}
+    if (Firebase.apps.isEmpty) {
+      if (_cachedMemories.containsKey(patientId)) {
+        _cachedMemories[patientId]!.removeWhere((m) => m.id == memoryId);
+      }
+      return;
+    }
+    await _firestore
+        .collection(FirestoreConstants.usersCollection)
+        .doc(patientId)
+        .collection(FirestoreConstants.memoriesCollection)
+        .doc(memoryId)
+        .delete()
+        .timeout(const Duration(seconds: 4));
 
     if (_cachedMemories.containsKey(patientId)) {
       _cachedMemories[patientId]!.removeWhere((m) => m.id == memoryId);

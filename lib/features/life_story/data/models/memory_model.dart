@@ -72,13 +72,15 @@ class MemoryModel {
       date: parsedDate,
       place: map['place'] as String? ?? '',
       era: map['era'] as String? ?? 'Childhood',
-      taggedPeople: (map['taggedPeople'] as List<dynamic>?)
+      taggedPeople:
+          (map['taggedPeople'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
       audioPath: map['audioPath'] as String?,
       audioDurationSeconds: (map['audioDurationSeconds'] as num?)?.toInt() ?? 0,
-      aiSuggestions: (map['aiSuggestions'] as List<dynamic>?)
+      aiSuggestions:
+          (map['aiSuggestions'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],

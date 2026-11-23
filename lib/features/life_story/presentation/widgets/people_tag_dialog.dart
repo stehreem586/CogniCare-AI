@@ -4,10 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 class PeopleTagDialog extends StatefulWidget {
   final List<String> initialTags;
 
-  const PeopleTagDialog({
-    super.key,
-    required this.initialTags,
-  });
+  const PeopleTagDialog({super.key, required this.initialTags});
 
   @override
   State<PeopleTagDialog> createState() => _PeopleTagDialogState();
@@ -60,13 +57,15 @@ class _PeopleTagDialogState extends State<PeopleTagDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       backgroundColor: Colors.white,
       title: const Row(
         children: [
-          Icon(Icons.people_outline_rounded, color: AppColors.primary, size: 24),
+          Icon(
+            Icons.people_outline_rounded,
+            color: AppColors.primary,
+            size: 24,
+          ),
           SizedBox(width: 10),
           Text(
             'Tag People',
@@ -120,7 +119,10 @@ class _PeopleTagDialogState extends State<PeopleTagDialog> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                   ),
                   child: const Text('Add'),
                 ),
@@ -165,7 +167,11 @@ class _PeopleTagDialogState extends State<PeopleTagDialog> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    deleteIcon: const Icon(Icons.close_rounded, size: 16, color: Colors.redAccent),
+                    deleteIcon: const Icon(
+                      Icons.close_rounded,
+                      size: 16,
+                      color: Colors.redAccent,
+                    ),
                     onDeleted: () => _removeTag(person),
                   );
                 }).toList(),
@@ -186,9 +192,9 @@ class _PeopleTagDialogState extends State<PeopleTagDialog> {
             Wrap(
               spacing: 6,
               runSpacing: 6,
-              children: _suggestedPeople
-                  .where((p) => !_tags.contains(p))
-                  .map((p) {
+              children: _suggestedPeople.where((p) => !_tags.contains(p)).map((
+                p,
+              ) {
                 return ActionChip(
                   label: Text('+ $p', style: const TextStyle(fontSize: 12)),
                   backgroundColor: const Color(0xFFF1F5F9),
@@ -203,7 +209,10 @@ class _PeopleTagDialogState extends State<PeopleTagDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(_tags),

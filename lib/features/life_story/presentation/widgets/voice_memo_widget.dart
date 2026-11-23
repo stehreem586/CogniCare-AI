@@ -64,10 +64,7 @@ class _VoiceMemoWidgetState extends State<VoiceMemoWidget> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
       ),
       child: Row(
         children: [
@@ -132,8 +129,25 @@ class _VoiceMemoWidgetState extends State<VoiceMemoWidget> {
   List<Widget> _buildWaveformBars() {
     // Rhythmic bar heights matching the design
     final heights = [
-      8.0, 14.0, 22.0, 16.0, 26.0, 18.0, 10.0, 24.0, 12.0, 20.0, 14.0, 8.0,
-      18.0, 24.0, 16.0, 10.0, 22.0, 12.0, 6.0,
+      8.0,
+      14.0,
+      22.0,
+      16.0,
+      26.0,
+      18.0,
+      10.0,
+      24.0,
+      12.0,
+      20.0,
+      14.0,
+      8.0,
+      18.0,
+      24.0,
+      16.0,
+      10.0,
+      22.0,
+      12.0,
+      6.0,
     ];
 
     return heights.asMap().entries.map((entry) {

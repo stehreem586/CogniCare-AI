@@ -39,7 +39,8 @@ class MemoryIllustration extends StatelessWidget {
           fit: fit,
           width: width,
           height: height,
-          errorBuilder: (context, error, stackTrace) => _buildFallbackIllustration(),
+          errorBuilder: (context, error, stackTrace) =>
+              _buildFallbackIllustration(),
         );
       } else {
         final file = File(localImagePath!);
@@ -49,7 +50,8 @@ class MemoryIllustration extends StatelessWidget {
             fit: fit,
             width: width,
             height: height,
-            errorBuilder: (context, error, stackTrace) => _buildFallbackIllustration(),
+            errorBuilder: (context, error, stackTrace) =>
+                _buildFallbackIllustration(),
           );
         } else {
           child = _buildFallbackIllustration();
@@ -65,7 +67,8 @@ class MemoryIllustration extends StatelessWidget {
           fit: fit,
           width: width,
           height: height,
-          errorBuilder: (context, error, stackTrace) => _buildFallbackIllustration(),
+          errorBuilder: (context, error, stackTrace) =>
+              _buildFallbackIllustration(),
         );
       } catch (_) {
         child = _buildFallbackIllustration();
@@ -78,7 +81,8 @@ class MemoryIllustration extends StatelessWidget {
         fit: fit,
         width: width,
         height: height,
-        errorBuilder: (context, error, stackTrace) => _buildFallbackIllustration(),
+        errorBuilder: (context, error, stackTrace) =>
+            _buildFallbackIllustration(),
       );
     }
     // 4. Illustrated scene preset from the designs
@@ -89,19 +93,11 @@ class MemoryIllustration extends StatelessWidget {
     if (borderRadius != null) {
       return ClipRRect(
         borderRadius: borderRadius!,
-        child: SizedBox(
-          width: width,
-          height: height,
-          child: child,
-        ),
+        child: SizedBox(width: width, height: height, child: child),
       );
     }
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: child,
-    );
+    return SizedBox(width: width, height: height, child: child);
   }
 
   Widget _buildFallbackIllustration() {
@@ -166,8 +162,20 @@ class _SceneCustomPainter extends CustomPainter {
     final moonCenter = Offset(w * 0.78, h * 0.28);
     final moonPaint = Paint()..color = const Color(0xFFFDE68A);
     final moonPath = Path()
-      ..addArc(Rect.fromCircle(center: moonCenter, radius: h * 0.12), -1.5, 3.14)
-      ..arcTo(Rect.fromCircle(center: Offset(moonCenter.dx + h * 0.05, moonCenter.dy), radius: h * 0.11), 1.6, -3.14, false);
+      ..addArc(
+        Rect.fromCircle(center: moonCenter, radius: h * 0.12),
+        -1.5,
+        3.14,
+      )
+      ..arcTo(
+        Rect.fromCircle(
+          center: Offset(moonCenter.dx + h * 0.05, moonCenter.dy),
+          radius: h * 0.11,
+        ),
+        1.6,
+        -3.14,
+        false,
+      );
     canvas.drawPath(moonPath, moonPaint);
 
     // Stars
@@ -193,7 +201,10 @@ class _SceneCustomPainter extends CustomPainter {
     final houseLeft = (w - houseW) / 2;
     final houseTop = h * 0.44;
     final housePaint = Paint()..color = const Color(0xFFFFFBEB);
-    canvas.drawRect(Rect.fromLTWH(houseLeft, houseTop, houseW, houseH), housePaint);
+    canvas.drawRect(
+      Rect.fromLTWH(houseLeft, houseTop, houseW, houseH),
+      housePaint,
+    );
 
     // Green Roof
     final roofPaint = Paint()..color = const Color(0xFF48BB78);
@@ -210,7 +221,12 @@ class _SceneCustomPainter extends CustomPainter {
     final doorH = houseH * 0.65;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(houseLeft + (houseW - doorW) / 2, houseTop + houseH - doorH, doorW, doorH),
+        Rect.fromLTWH(
+          houseLeft + (houseW - doorW) / 2,
+          houseTop + houseH - doorH,
+          doorW,
+          doorH,
+        ),
         const Radius.circular(3),
       ),
       doorPaint,
@@ -219,8 +235,24 @@ class _SceneCustomPainter extends CustomPainter {
     // Yellow Lit Windows
     final windowPaint = Paint()..color = const Color(0xFFFBBF24);
     final winSize = houseW * 0.2;
-    canvas.drawRect(Rect.fromLTWH(houseLeft + houseW * 0.12, houseTop + houseH * 0.22, winSize, winSize), windowPaint);
-    canvas.drawRect(Rect.fromLTWH(houseLeft + houseW * 0.68, houseTop + houseH * 0.22, winSize, winSize), windowPaint);
+    canvas.drawRect(
+      Rect.fromLTWH(
+        houseLeft + houseW * 0.12,
+        houseTop + houseH * 0.22,
+        winSize,
+        winSize,
+      ),
+      windowPaint,
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(
+        houseLeft + houseW * 0.68,
+        houseTop + houseH * 0.22,
+        winSize,
+        winSize,
+      ),
+      windowPaint,
+    );
   }
 
   // 2. Lahore Fort (Historical Sandstone Mughal Fort)
@@ -238,11 +270,22 @@ class _SceneCustomPainter extends CustomPainter {
     canvas.drawRect(rect, skyPaint);
 
     // Sun & Orb in sky
-    canvas.drawCircle(Offset(w * 0.3, h * 0.24), h * 0.09, Paint()..color = const Color(0xFFFDE68A));
-    canvas.drawCircle(Offset(w * 0.52, h * 0.22), h * 0.06, Paint()..color = const Color(0xFF4299E1));
+    canvas.drawCircle(
+      Offset(w * 0.3, h * 0.24),
+      h * 0.09,
+      Paint()..color = const Color(0xFFFDE68A),
+    );
+    canvas.drawCircle(
+      Offset(w * 0.52, h * 0.22),
+      h * 0.06,
+      Paint()..color = const Color(0xFF4299E1),
+    );
 
     // Green lawn
-    canvas.drawRect(Rect.fromLTWH(0, h * 0.74, w, h * 0.26), Paint()..color = const Color(0xFF38A169));
+    canvas.drawRect(
+      Rect.fromLTWH(0, h * 0.74, w, h * 0.26),
+      Paint()..color = const Color(0xFF38A169),
+    );
 
     // Sandstone Fort Structure
     final fortPaint = Paint()..color = const Color(0xFFD69E2E);
@@ -257,7 +300,10 @@ class _SceneCustomPainter extends CustomPainter {
     for (int i = 0; i < 4; i++) {
       final tX = fortLeft + (i * (fortW / 3.8));
       canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(tX, fortTop - h * 0.06, fortW * 0.16, h * 0.08), const Radius.circular(2)),
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(tX, fortTop - h * 0.06, fortW * 0.16, h * 0.08),
+          const Radius.circular(2),
+        ),
         towerPaint,
       );
     }
@@ -271,7 +317,12 @@ class _SceneCustomPainter extends CustomPainter {
       final archPath = Path()
         ..moveTo(aX, fortTop + fortH)
         ..lineTo(aX, fortTop + fortH - archH * 0.6)
-        ..arcTo(Rect.fromLTWH(aX, fortTop + fortH - archH, archW, archH * 0.8), 3.14, 3.14, false)
+        ..arcTo(
+          Rect.fromLTWH(aX, fortTop + fortH - archH, archW, archH * 0.8),
+          3.14,
+          3.14,
+          false,
+        )
         ..lineTo(aX + archW, fortTop + fortH)
         ..close();
       canvas.drawPath(archPath, archPaint);
@@ -293,7 +344,11 @@ class _SceneCustomPainter extends CustomPainter {
     canvas.drawRect(rect, skyPaint);
 
     // Warm Sun
-    canvas.drawCircle(Offset(w * 0.28, h * 0.35), h * 0.12, Paint()..color = const Color(0xFFF6AD55));
+    canvas.drawCircle(
+      Offset(w * 0.28, h * 0.35),
+      h * 0.12,
+      Paint()..color = const Color(0xFFF6AD55),
+    );
 
     // Distant Hill
     final hill1 = Path()
@@ -318,14 +373,20 @@ class _SceneCustomPainter extends CustomPainter {
     final cTop = h * 0.56;
     final cW = w * 0.2;
     final cH = h * 0.16;
-    canvas.drawRect(Rect.fromLTWH(cLeft, cTop, cW, cH), Paint()..color = Colors.white);
+    canvas.drawRect(
+      Rect.fromLTWH(cLeft, cTop, cW, cH),
+      Paint()..color = Colors.white,
+    );
     final cRoof = Path()
       ..moveTo(cLeft - 4, cTop)
       ..lineTo(cLeft + cW / 2, cTop - h * 0.08)
       ..lineTo(cLeft + cW + 4, cTop)
       ..close();
     canvas.drawPath(cRoof, Paint()..color = const Color(0xFFE53E3E));
-    canvas.drawRect(Rect.fromLTWH(cLeft + cW * 0.35, cTop + cH * 0.4, cW * 0.3, cH * 0.6), Paint()..color = const Color(0xFF2B6CB0));
+    canvas.drawRect(
+      Rect.fromLTWH(cLeft + cW * 0.35, cTop + cH * 0.4, cW * 0.3, cH * 0.6),
+      Paint()..color = const Color(0xFF2B6CB0),
+    );
   }
 
   // 4. Graduation (University Hall with Mortarboard)
@@ -343,7 +404,10 @@ class _SceneCustomPainter extends CustomPainter {
     canvas.drawRect(rect, skyPaint);
 
     // Green Campus Ground
-    canvas.drawRect(Rect.fromLTWH(0, h * 0.76, w, h * 0.24), Paint()..color = const Color(0xFF276749));
+    canvas.drawRect(
+      Rect.fromLTWH(0, h * 0.76, w, h * 0.24),
+      Paint()..color = const Color(0xFF276749),
+    );
 
     // University Hall Pediment / Roof
     final bLeft = w * 0.16;
@@ -357,11 +421,17 @@ class _SceneCustomPainter extends CustomPainter {
     canvas.drawPath(roofPath, Paint()..color = const Color(0xFF2B6CB0));
 
     // Hall Base & Pillars
-    canvas.drawRect(Rect.fromLTWH(bLeft, bTop, bW, h * 0.34), Paint()..color = const Color(0xFFEDF2F7));
+    canvas.drawRect(
+      Rect.fromLTWH(bLeft, bTop, bW, h * 0.34),
+      Paint()..color = const Color(0xFFEDF2F7),
+    );
     final pillarPaint = Paint()..color = const Color(0xFFCBD5E0);
     for (int i = 0; i < 4; i++) {
       final pX = bLeft + bW * 0.1 + (i * (bW * 0.24));
-      canvas.drawRect(Rect.fromLTWH(pX, bTop, bW * 0.08, h * 0.34), pillarPaint);
+      canvas.drawRect(
+        Rect.fromLTWH(pX, bTop, bW * 0.08, h * 0.34),
+        pillarPaint,
+      );
     }
 
     // Black Graduation Cap (Mortarboard) in Foreground
@@ -376,11 +446,17 @@ class _SceneCustomPainter extends CustomPainter {
       ..close();
     canvas.drawPath(capDiamond, capPaint);
     // Tassel
-    canvas.drawCircle(Offset(capCenterX, capCenterY - h * 0.02), 2.5, Paint()..color = const Color(0xFFD69E2E));
+    canvas.drawCircle(
+      Offset(capCenterX, capCenterY - h * 0.02),
+      2.5,
+      Paint()..color = const Color(0xFFD69E2E),
+    );
     canvas.drawLine(
       Offset(capCenterX, capCenterY - h * 0.02),
       Offset(capCenterX + w * 0.1, capCenterY + h * 0.03),
-      Paint()..color = const Color(0xFFD69E2E)..strokeWidth = 2,
+      Paint()
+        ..color = const Color(0xFFD69E2E)
+        ..strokeWidth = 2,
     );
   }
 
@@ -399,7 +475,10 @@ class _SceneCustomPainter extends CustomPainter {
     canvas.drawRect(rect, skyPaint);
 
     // Green Lawn
-    canvas.drawRect(Rect.fromLTWH(0, h * 0.72, w, h * 0.28), Paint()..color = const Color(0xFF38A169));
+    canvas.drawRect(
+      Rect.fromLTWH(0, h * 0.72, w, h * 0.28),
+      Paint()..color = const Color(0xFF38A169),
+    );
 
     // Floral Arch Curve
     final archCenter = Offset(w * 0.5, h * 0.72);
@@ -428,8 +507,13 @@ class _SceneCustomPainter extends CustomPainter {
     ];
     for (int i = 0; i < flowerColors.length; i++) {
       final angle = 3.14 + (i * (3.14 / (flowerColors.length - 1)));
-      final fX = archCenter.dx + (archRadius * 1.0) * (angle > 3.14 ? -1 : 1) * (0.8 - (i * 0.26)).abs();
-      final fY = archCenter.dy - (archRadius * 0.95) * (1 - (0.8 - (i * 0.26)).abs());
+      final fX =
+          archCenter.dx +
+          (archRadius * 1.0) *
+              (angle > 3.14 ? -1 : 1) *
+              (0.8 - (i * 0.26)).abs();
+      final fY =
+          archCenter.dy - (archRadius * 0.95) * (1 - (0.8 - (i * 0.26)).abs());
       canvas.drawCircle(Offset(fX, fY), 5.5, Paint()..color = flowerColors[i]);
     }
 
@@ -438,16 +522,30 @@ class _SceneCustomPainter extends CustomPainter {
     final bridePaint = Paint()..color = Colors.white;
 
     // Groom
-    canvas.drawCircle(Offset(w * 0.44, h * 0.64), h * 0.04, Paint()..color = const Color(0xFFECC94B));
+    canvas.drawCircle(
+      Offset(w * 0.44, h * 0.64),
+      h * 0.04,
+      Paint()..color = const Color(0xFFECC94B),
+    );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.40, h * 0.69, w * 0.08, h * 0.14), const Radius.circular(8)),
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.40, h * 0.69, w * 0.08, h * 0.14),
+        const Radius.circular(8),
+      ),
       groomPaint,
     );
 
     // Bride
-    canvas.drawCircle(Offset(w * 0.56, h * 0.64), h * 0.04, Paint()..color = const Color(0xFFECC94B));
+    canvas.drawCircle(
+      Offset(w * 0.56, h * 0.64),
+      h * 0.04,
+      Paint()..color = const Color(0xFFECC94B),
+    );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.52, h * 0.69, w * 0.08, h * 0.14), const Radius.circular(8)),
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.52, h * 0.69, w * 0.08, h * 0.14),
+        const Radius.circular(8),
+      ),
       bridePaint,
     );
   }
@@ -462,17 +560,14 @@ class _SceneCustomPainter extends CustomPainter {
       ..shader = const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFFED7AA),
-          Color(0xFFFEF08A),
-          Color(0xFFBAE6FD),
-        ],
+        colors: [Color(0xFFFED7AA), Color(0xFFFEF08A), Color(0xFFBAE6FD)],
       ).createShader(rect);
     canvas.drawRect(rect, skyPaint);
 
     // Glowing Morning Sun on top-right
     final sunCenter = Offset(w * 0.76, h * 0.30);
-    final sunHaloPaint = Paint()..color = const Color(0xFFFEF9C3).withValues(alpha: 0.5);
+    final sunHaloPaint = Paint()
+      ..color = const Color(0xFFFEF9C3).withValues(alpha: 0.5);
     canvas.drawCircle(sunCenter, h * 0.18, sunHaloPaint);
     final sunPaint = Paint()..color = const Color(0xFFFDE047);
     canvas.drawCircle(sunCenter, h * 0.12, sunPaint);
@@ -503,7 +598,10 @@ class _SceneCustomPainter extends CustomPainter {
 
     // School base wall (Cream/White)
     final wallPaint = Paint()..color = const Color(0xFFFFFBEB);
-    canvas.drawRect(Rect.fromLTWH(schoolLeft, schoolTop, schoolW, schoolH), wallPaint);
+    canvas.drawRect(
+      Rect.fromLTWH(schoolLeft, schoolTop, schoolW, schoolH),
+      wallPaint,
+    );
 
     // Dark Blue Gable Roof
     final roofPaint = Paint()..color = const Color(0xFF1E3A8A);
@@ -520,7 +618,12 @@ class _SceneCustomPainter extends CustomPainter {
     final doorH = schoolH * 0.65;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(schoolLeft + (schoolW - doorW) / 2, schoolTop + schoolH - doorH, doorW, doorH),
+        Rect.fromLTWH(
+          schoolLeft + (schoolW - doorW) / 2,
+          schoolTop + schoolH - doorH,
+          doorW,
+          doorH,
+        ),
         const Radius.circular(3),
       ),
       doorPaint,
@@ -529,15 +632,40 @@ class _SceneCustomPainter extends CustomPainter {
     // Left and Right windows (Soft lit yellow)
     final winPaint = Paint()..color = const Color(0xFFFDE68A);
     final winSize = schoolW * 0.18;
-    canvas.drawRect(Rect.fromLTWH(schoolLeft + schoolW * 0.1, schoolTop + schoolH * 0.25, winSize, winSize), winPaint);
-    canvas.drawRect(Rect.fromLTWH(schoolLeft + schoolW * 0.72, schoolTop + schoolH * 0.25, winSize, winSize), winPaint);
+    canvas.drawRect(
+      Rect.fromLTWH(
+        schoolLeft + schoolW * 0.1,
+        schoolTop + schoolH * 0.25,
+        winSize,
+        winSize,
+      ),
+      winPaint,
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(
+        schoolLeft + schoolW * 0.72,
+        schoolTop + schoolH * 0.25,
+        winSize,
+        winSize,
+      ),
+      winPaint,
+    );
 
     // Flanking Trees/Bushes
     final treePaint = Paint()..color = const Color(0xFF1F6B38);
-    canvas.drawCircle(Offset(schoolLeft - w * 0.05, schoolTop + schoolH * 0.7), h * 0.09, treePaint);
-    canvas.drawCircle(Offset(schoolLeft + schoolW + w * 0.05, schoolTop + schoolH * 0.7), h * 0.09, treePaint);
+    canvas.drawCircle(
+      Offset(schoolLeft - w * 0.05, schoolTop + schoolH * 0.7),
+      h * 0.09,
+      treePaint,
+    );
+    canvas.drawCircle(
+      Offset(schoolLeft + schoolW + w * 0.05, schoolTop + schoolH * 0.7),
+      h * 0.09,
+      treePaint,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _SceneCustomPainter oldDelegate) => oldDelegate.key != key;
+  bool shouldRepaint(covariant _SceneCustomPainter oldDelegate) =>
+      oldDelegate.key != key;
 }

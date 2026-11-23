@@ -111,7 +111,9 @@ class TherapyPrimaryButton extends StatelessWidget {
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -122,7 +124,10 @@ class TherapyPrimaryButton extends StatelessWidget {
               ],
               Text(
                 label,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -133,7 +138,11 @@ class TherapyPrimaryButton extends StatelessWidget {
 }
 
 class TherapyOutlineButton extends StatelessWidget {
-  const TherapyOutlineButton({super.key, required this.label, required this.onPressed});
+  const TherapyOutlineButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+  });
 
   final String label;
   final VoidCallback onPressed;
@@ -148,9 +157,14 @@ class TherapyOutlineButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: TherapyColors.primaryDark,
           side: const BorderSide(color: Color(0xFFB7D7EE)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
         ),
-        child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
@@ -194,11 +208,7 @@ class TherapyCard extends StatelessWidget {
 }
 
 class TherapyIconBubble extends StatelessWidget {
-  const TherapyIconBubble({
-    super.key,
-    required this.kind,
-    this.size = 46,
-  });
+  const TherapyIconBubble({super.key, required this.kind, this.size = 46});
 
   final TherapyIconKind kind;
   final double size;
@@ -206,11 +216,31 @@ class TherapyIconBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spec = switch (kind) {
-      TherapyIconKind.leaf => (TherapyColors.cardMint, const Color(0xFF2EC4A0), Icons.spa_rounded),
-      TherapyIconKind.games => (TherapyColors.cardBlue, const Color(0xFF3B9AE1), Icons.extension_rounded),
-      TherapyIconKind.mindfulness => (TherapyColors.cardPurple, const Color(0xFF9B6BDB), Icons.self_improvement_rounded),
-      TherapyIconKind.reminiscence => (TherapyColors.cardPink, const Color(0xFFE56B9A), Icons.menu_book_rounded),
-      TherapyIconKind.routine => (const Color(0xFFEAF4FF), const Color(0xFF5B9DEF), Icons.calendar_today_rounded),
+      TherapyIconKind.leaf => (
+        TherapyColors.cardMint,
+        const Color(0xFF2EC4A0),
+        Icons.spa_rounded,
+      ),
+      TherapyIconKind.games => (
+        TherapyColors.cardBlue,
+        const Color(0xFF3B9AE1),
+        Icons.extension_rounded,
+      ),
+      TherapyIconKind.mindfulness => (
+        TherapyColors.cardPurple,
+        const Color(0xFF9B6BDB),
+        Icons.self_improvement_rounded,
+      ),
+      TherapyIconKind.reminiscence => (
+        TherapyColors.cardPink,
+        const Color(0xFFE56B9A),
+        Icons.menu_book_rounded,
+      ),
+      TherapyIconKind.routine => (
+        const Color(0xFFEAF4FF),
+        const Color(0xFF5B9DEF),
+        Icons.calendar_today_rounded,
+      ),
     };
     return Container(
       width: size,
@@ -222,7 +252,9 @@ class TherapyIconBubble extends StatelessWidget {
 }
 
 class TherapyBellButton extends StatelessWidget {
-  const TherapyBellButton({super.key});
+  const TherapyBellButton({super.key, this.onPressed});
+
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +274,14 @@ class TherapyBellButton extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(Icons.notifications_none_rounded, color: TherapyColors.navy),
+          child: IconButton(
+            onPressed: onPressed,
+            tooltip: 'Notifications',
+            icon: const Icon(
+              Icons.notifications_none_rounded,
+              color: TherapyColors.navy,
+            ),
+          ),
         ),
         Positioned(
           right: 8,
@@ -250,7 +289,10 @@ class TherapyBellButton extends StatelessWidget {
           child: Container(
             width: 9,
             height: 9,
-            decoration: const BoxDecoration(color: TherapyColors.teal, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              color: TherapyColors.teal,
+              shape: BoxShape.circle,
+            ),
           ),
         ),
       ],

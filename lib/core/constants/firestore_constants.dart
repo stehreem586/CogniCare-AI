@@ -3,6 +3,7 @@ class FirestoreConstants {
 
   // Collection names
   static const String usersCollection = 'users';
+  static const String userLookupCollection = 'userLookup';
   static const String healthProfileSubcollection = 'healthProfile';
   static const String healthProfileDocId = 'info';
   static const String emergencyContactsSubcollection = 'emergencyContacts';

@@ -3,7 +3,8 @@ import '../models/relationship_node_model.dart';
 import '../models/memory_model.dart';
 
 class RelationshipGraphService {
-  static final RelationshipGraphService _instance = RelationshipGraphService._internal();
+  static final RelationshipGraphService _instance =
+      RelationshipGraphService._internal();
   factory RelationshipGraphService() => _instance;
   RelationshipGraphService._internal();
 
@@ -142,6 +143,59 @@ class RelationshipGraphService {
     ];
   }
 
+  /// Builds a read-only graph from the patient's saved memories. This avoids
+  /// showing the caregiver design fixture to patients with different data.
+  void initializeFromMemories(List<MemoryModel> memories) {
+    final nodes = <RelationshipNode>[];
+    final seen = <String>{};
+
+    void addNode(String name, RelationshipNodeType type, List<String> ids) {
+      final key = '${type.name}:${name.toLowerCase()}';
+      if (name.trim().isEmpty || !seen.add(key)) return;
+      final linkedIds = memories
+          .where((memory) => ids.contains(memory.id))
+          .map((memory) => memory.id)
+          .toList();
+      nodes.add(
+        RelationshipNode(
+          id: 'saved_${nodes.length}',
+          name: name,
+          roleOrRelation: type == RelationshipNodeType.person
+              ? 'In your memories'
+              : type == RelationshipNodeType.place
+              ? 'Place'
+              : 'Event',
+          type: type,
+          memoryCount: linkedIds.length,
+          linkedCount: linkedIds.length,
+          relativePosition: Offset.zero,
+          linkedMemoryIds: linkedIds,
+        ),
+      );
+    }
+
+    for (final memory in memories) {
+      for (final person in memory.taggedPeople) {
+        addNode(person, RelationshipNodeType.person, [memory.id]);
+      }
+      if (memory.place.isNotEmpty)
+        addNode(memory.place, RelationshipNodeType.place, [memory.id]);
+      addNode(memory.title, RelationshipNodeType.event, [memory.id]);
+    }
+
+    _nodes = nodes;
+    _edges = nodes
+        .map(
+          (node) => RelationshipEdge(
+            id: 'saved_edge_${node.id}',
+            sourceNodeId: 'center',
+            targetNodeId: node.id,
+            label: node.roleOrRelation.toLowerCase(),
+          ),
+        )
+        .toList();
+  }
+
   /// Adds a new entity node and connects it to the graph
   RelationshipNode addNode({
     required String name,
@@ -152,7 +206,10 @@ class RelationshipGraphService {
     // Generate a radial position that avoids overlapping existing nodes
     final double angle = (_nodes.length * 1.1) % 6.28;
     final double radius = 0.68;
-    final Offset pos = Offset(radius * 0.9 * (angle > 3.14 ? -1 : 1), radius * 0.8 * (angle < 1.57 || angle > 4.71 ? -1 : 1));
+    final Offset pos = Offset(
+      radius * 0.9 * (angle > 3.14 ? -1 : 1),
+      radius * 0.8 * (angle < 1.57 || angle > 4.71 ? -1 : 1),
+    );
 
     final newNode = RelationshipNode(
       id: 'node_${DateTime.now().millisecondsSinceEpoch}',
@@ -180,13 +237,18 @@ class RelationshipGraphService {
   }
 
   /// Finds memories associated with a given relationship node
-  List<MemoryModel> getMemoriesForNode(RelationshipNode node, List<MemoryModel> allMemories) {
+  List<MemoryModel> getMemoriesForNode(
+    RelationshipNode node,
+    List<MemoryModel> allMemories,
+  ) {
     return allMemories.where((m) {
       if (node.linkedMemoryIds.contains(m.id)) return true;
 
       final nodeNameLower = node.name.toLowerCase();
       if (node.type == RelationshipNodeType.person) {
-        return m.taggedPeople.any((p) => p.toLowerCase().contains(nodeNameLower));
+        return m.taggedPeople.any(
+          (p) => p.toLowerCase().contains(nodeNameLower),
+        );
       } else if (node.type == RelationshipNodeType.place) {
         return m.place.toLowerCase().contains(nodeNameLower);
       } else {

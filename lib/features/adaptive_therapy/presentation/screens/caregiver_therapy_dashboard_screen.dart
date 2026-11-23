@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../../profile/data/models/user_profile.dart';
 import '../../data/mock_therapy_data.dart';
 import '../theme/therapy_colors.dart';
 import '../widgets/therapy_common.dart';
 import '../widgets/therapy_illustrations.dart';
 
 class CaregiverTherapyDashboardScreen extends StatelessWidget {
-  const CaregiverTherapyDashboardScreen({super.key, this.onViewDetails});
+  const CaregiverTherapyDashboardScreen({
+    super.key,
+    required this.patient,
+    required this.caregiverName,
+    this.onViewDetails,
+  });
 
+  final UserProfile patient;
+  final String caregiverName;
   final VoidCallback? onViewDetails;
 
   @override
@@ -20,12 +28,12 @@ class CaregiverTherapyDashboardScreen extends StatelessWidget {
               children: [
                 const CaregiverAvatar(size: 50),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        TherapyMocks.caregiverName,
+                        caregiverName,
                         style: TextStyle(
                           color: TherapyColors.navy,
                           fontSize: 16,
@@ -34,24 +42,39 @@ class CaregiverTherapyDashboardScreen extends StatelessWidget {
                       ),
                       Text(
                         TherapyMocks.caregiverRole,
-                        style: TextStyle(color: TherapyColors.muted, fontSize: 13),
+                        style: TextStyle(
+                          color: TherapyColors.muted,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  icon: const Icon(Icons.close_rounded, color: TherapyColors.muted),
+                  onPressed: () => Navigator.of(context).pop(),
+                  tooltip: 'Close',
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: TherapyColors.muted,
+                  ),
                 ),
-                const TherapyBellButton(),
+                TherapyBellButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        const SnackBar(content: Text('No new notifications.')),
+                      );
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 22),
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    "${TherapyMocks.patientFirstName}'s Emotional Well-being",
+                    "${patient.name}'s Emotional Well-being",
                     style: TextStyle(
                       color: TherapyColors.navy,
                       fontSize: 16,

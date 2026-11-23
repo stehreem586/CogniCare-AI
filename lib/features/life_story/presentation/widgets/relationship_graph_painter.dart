@@ -39,13 +39,17 @@ class RelationshipGraphPainter extends CustomPainter {
   void _paintCenterGlow(Canvas canvas, Offset center) {
     // Outer translucent green halo
     final outerHalo = Paint()
-      ..color = const Color(0xFF2EAA55).withValues(alpha: 0.12 * animationProgress)
+      ..color = const Color(
+        0xFF2EAA55,
+      ).withValues(alpha: 0.12 * animationProgress)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, 78, outerHalo);
 
     // Middle brighter green halo
     final middleHalo = Paint()
-      ..color = const Color(0xFF2EAA55).withValues(alpha: 0.22 * animationProgress)
+      ..color = const Color(
+        0xFF2EAA55,
+      ).withValues(alpha: 0.22 * animationProgress)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, 54, middleHalo);
   }
@@ -70,7 +74,10 @@ class RelationshipGraphPainter extends CustomPainter {
       ..strokeWidth = 1.5;
     for (int i = 0; i < 6; i++) {
       final angle = i * (pi / 3);
-      final spokeEnd = Offset(center.dx + 30 * cos(angle), center.dy + 30 * sin(angle));
+      final spokeEnd = Offset(
+        center.dx + 30 * cos(angle),
+        center.dy + 30 * sin(angle),
+      );
       canvas.drawLine(center, spokeEnd, spokePaint);
     }
   }
@@ -86,11 +93,14 @@ class RelationshipGraphPainter extends CustomPainter {
 
       final nodePos = _getNodePosition(center, targetNode, graphRadius);
 
-      final isSelectedEdge = selectedNode != null && targetNode.id == selectedNode!.id;
+      final isSelectedEdge =
+          selectedNode != null && targetNode.id == selectedNode!.id;
 
       // Draw Connection Line
       final linePaint = Paint()
-        ..color = isSelectedEdge ? const Color(0xFF48BB78) : const Color(0xFF2EAA55).withValues(alpha: 0.85)
+        ..color = isSelectedEdge
+            ? const Color(0xFF48BB78)
+            : const Color(0xFF2EAA55).withValues(alpha: 0.85)
         ..strokeWidth = isSelectedEdge ? 2.8 : 2.0
         ..style = PaintingStyle.stroke;
       canvas.drawLine(center, nodePos, linePaint);
@@ -139,13 +149,13 @@ class RelationshipGraphPainter extends CustomPainter {
       if (!edge.isDashed) continue;
 
       final sourceNode = nodes.cast<RelationshipNode?>().firstWhere(
-            (n) => n?.id == edge.sourceNodeId,
-            orElse: () => null,
-          );
+        (n) => n?.id == edge.sourceNodeId,
+        orElse: () => null,
+      );
       final targetNode = nodes.cast<RelationshipNode?>().firstWhere(
-            (n) => n?.id == edge.targetNodeId,
-            orElse: () => null,
-          );
+        (n) => n?.id == edge.targetNodeId,
+        orElse: () => null,
+      );
 
       if (sourceNode == null || targetNode == null) continue;
 
@@ -164,7 +174,11 @@ class RelationshipGraphPainter extends CustomPainter {
         ..moveTo(pos1.dx, pos1.dy)
         ..quadraticBezierTo(controlPoint.dx, controlPoint.dy, pos2.dx, pos2.dy);
 
-      _drawDashedPath(canvas, path, const Color(0xFF60A5FA).withValues(alpha: 0.45));
+      _drawDashedPath(
+        canvas,
+        path,
+        const Color(0xFF60A5FA).withValues(alpha: 0.45),
+      );
     }
   }
 
@@ -177,10 +191,11 @@ class RelationshipGraphPainter extends CustomPainter {
       // 1. Highlight pulse for selected node
       if (isSelected) {
         final glowPaint = Paint()
-          ..color = (node.type == RelationshipNodeType.person
-                  ? const Color(0xFF3B82F6)
-                  : const Color(0xFF48BB78))
-              .withValues(alpha: 0.38)
+          ..color =
+              (node.type == RelationshipNodeType.person
+                      ? const Color(0xFF3B82F6)
+                      : const Color(0xFF48BB78))
+                  .withValues(alpha: 0.38)
           ..style = PaintingStyle.fill;
         canvas.drawCircle(pos, radius + 10, glowPaint);
       }
@@ -248,7 +263,11 @@ class RelationshipGraphPainter extends CustomPainter {
     // Head circle (Cream/Peach)
     final headCenter = Offset(center.dx, center.dy - radius * 0.18);
     final headRadius = radius * 0.34;
-    canvas.drawCircle(headCenter, headRadius, Paint()..color = const Color(0xFFFDE68A));
+    canvas.drawCircle(
+      headCenter,
+      headRadius,
+      Paint()..color = const Color(0xFFFDE68A),
+    );
 
     // Torso / Shoulders arc (Green or Slate)
     final bodyPaint = Paint()..color = const Color(0xFF2EAA55);
@@ -291,11 +310,18 @@ class RelationshipGraphPainter extends CustomPainter {
 
     textPainter.paint(
       canvas,
-      Offset(center.dx - textPainter.width / 2, center.dy - textPainter.height / 2),
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
     );
   }
 
-  Offset _getNodePosition(Offset center, RelationshipNode node, double graphRadius) {
+  Offset _getNodePosition(
+    Offset center,
+    RelationshipNode node,
+    double graphRadius,
+  ) {
     return Offset(
       center.dx + node.relativePosition.dx * graphRadius,
       center.dy + node.relativePosition.dy * graphRadius,

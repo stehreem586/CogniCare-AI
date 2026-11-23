@@ -12,11 +12,13 @@ import '../widgets/memory_illustration.dart';
 class MemoryLibraryScreen extends StatefulWidget {
   final MemoryRepository? memoryRepository;
   final String? patientId;
+  final bool readOnly;
 
   const MemoryLibraryScreen({
     super.key,
     this.memoryRepository,
     this.patientId,
+    this.readOnly = false,
   });
 
   @override
@@ -49,11 +51,16 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
   }
 
   Future<void> _loadMemories() async {
-    final targetPatientId = widget.patientId ??
-        (Firebase.apps.isNotEmpty ? AuthStateService.instance.currentUserProfile?.uid : null) ??
+    final targetPatientId =
+        widget.patientId ??
+        (Firebase.apps.isNotEmpty
+            ? AuthStateService.instance.currentUserProfile?.uid
+            : null) ??
         'patient_rahim_khan';
 
-    final list = await _memoryRepository.getMemories(patientId: targetPatientId);
+    final list = await _memoryRepository.getMemories(
+      patientId: targetPatientId,
+    );
     if (mounted) {
       setState(() {
         _allMemories = list;
@@ -81,7 +88,9 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
       temp = temp.where((m) {
         final titleMatch = m.title.toLowerCase().contains(q);
         final placeMatch = m.place.toLowerCase().contains(q);
-        final peopleMatch = m.taggedPeople.any((p) => p.toLowerCase().contains(q));
+        final peopleMatch = m.taggedPeople.any(
+          (p) => p.toLowerCase().contains(q),
+        );
         final eraMatch = m.era.toLowerCase().contains(q);
         return titleMatch || placeMatch || peopleMatch || eraMatch;
       }).toList();
@@ -158,14 +167,22 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.primary),
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         '${memory.date.day} ${_monthName(memory.date.month)} ${memory.date.year}',
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(width: 16),
-                      const Icon(Icons.location_on_outlined, size: 18, color: AppColors.brandTeal),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 18,
+                        color: AppColors.brandTeal,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         memory.place,
@@ -175,7 +192,10 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                   ),
                   const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
@@ -240,8 +260,18 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
 
   String _monthName(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[(month - 1).clamp(0, 11)];
   }
@@ -251,13 +281,17 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
     // Featured "On this day" memory (e.g. Murree picnic or first memory)
     final MemoryModel onThisDayMemory = _allMemories.firstWhere(
       (m) => m.illustrationKey == 'murree_picnic' || m.isFavorite,
-      orElse: () => _allMemories.isNotEmpty ? _allMemories.first : _createPlaceholderMemory(),
+      orElse: () => _allMemories.isNotEmpty
+          ? _allMemories.first
+          : _createPlaceholderMemory(),
     );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : Column(
               children: [
                 Expanded(
@@ -265,7 +299,10 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                     bottom: false,
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -335,7 +372,10 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                                 ),
                                 suffixIcon: _searchQuery.isNotEmpty
                                     ? IconButton(
-                                        icon: const Icon(Icons.clear_rounded, size: 18),
+                                        icon: const Icon(
+                                          Icons.clear_rounded,
+                                          size: 18,
+                                        ),
                                         onPressed: () {
                                           _searchController.clear();
                                           _onSearchChanged('');
@@ -345,7 +385,9 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                                 border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                               ),
                             ),
                           ),
@@ -358,7 +400,10 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                             physics: const BouncingScrollPhysics(),
                             child: Row(
                               children: [
-                                _buildFilterPill('All', 'All ${_allMemories.length}'),
+                                _buildFilterPill(
+                                  'All',
+                                  'All ${_allMemories.length}',
+                                ),
                                 const SizedBox(width: 8),
                                 _buildFilterPill('People', 'People'),
                                 const SizedBox(width: 8),
@@ -384,19 +429,22 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                                   child: Center(
                                     child: Text(
                                       'No memories found matching your search.',
-                                      style: TextStyle(color: Color(0xFF64748B)),
+                                      style: TextStyle(
+                                        color: Color(0xFF64748B),
+                                      ),
                                     ),
                                   ),
                                 )
                               : GridView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 14,
-                                    mainAxisSpacing: 14,
-                                    childAspectRatio: 0.95,
-                                  ),
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: 14,
+                                        mainAxisSpacing: 14,
+                                        childAspectRatio: 0.95,
+                                      ),
                                   itemCount: _filteredMemories.length,
                                   itemBuilder: (context, index) {
                                     final memory = _filteredMemories[index];
@@ -418,6 +466,12 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
                 LifeStoryBottomBar(
                   currentIndex: 1,
                   onTap: (index) {},
+                  readOnly:
+                      widget.readOnly ||
+                      (Firebase.apps.isNotEmpty &&
+                          AuthStateService.instance.currentUserProfile?.role ==
+                              'patient'),
+                  patientId: widget.patientId,
                 ),
               ],
             ),
@@ -471,10 +525,7 @@ class _MemoryLibraryScreenState extends State<MemoryLibraryScreen> {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F5A9E),
-              Color(0xFF0B467E),
-            ],
+            colors: [Color(0xFF0F5A9E), Color(0xFF0B467E)],
           ),
           borderRadius: BorderRadius.circular(22),
           boxShadow: [

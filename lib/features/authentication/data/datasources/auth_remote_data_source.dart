@@ -32,8 +32,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({
     FirebaseAuth? firebaseAuth,
     UserRemoteDataSource? userRemoteDataSource,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _userRemoteDataSource = userRemoteDataSource ?? UserRemoteDataSourceImpl();
+  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+       _userRemoteDataSource =
+           userRemoteDataSource ?? UserRemoteDataSourceImpl();
 
   @override
   User? get currentUser => _firebaseAuth.currentUser;
@@ -59,14 +60,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final appUser = await _userRemoteDataSource.getUserById(firebaseUser.uid);
       if (appUser == null) {
-        // Fallback user if Firestore record wasn't created yet
-        return AppUser(
+        // Repair legacy accounts that exist in Firebase Auth but whose
+        // Firestore profile was not created. Creating the profile also creates
+        // the email lookup entry used by caregiver linking.
+        final repairedUser = AppUser(
           uid: firebaseUser.uid,
           email: firebaseUser.email ?? email,
           name: firebaseUser.displayName ?? '',
           role: 'patient',
           createdAt: DateTime.now(),
         );
+        await _userRemoteDataSource.createUserProfile(repairedUser);
+        return repairedUser;
       }
 
       return appUser;

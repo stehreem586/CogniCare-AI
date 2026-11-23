@@ -51,7 +51,12 @@ class RecallPromptService {
         scheduledTime: smartScheduleTime,
         status: 'pending',
         targetEntity: 'Wedding',
-        suggestedAnswers: ['Off-white / Gold', 'Navy Blue', 'Black', 'Emerald Green'],
+        suggestedAnswers: [
+          'Off-white / Gold',
+          'Navy Blue',
+          'Black',
+          'Emerald Green',
+        ],
         createdAt: DateTime.now().subtract(const Duration(hours: 6)),
       ),
     ];
@@ -83,7 +88,8 @@ class RecallPromptService {
 
     if (memory.title.toLowerCase().contains('school')) {
       difficulty = 'Easy';
-      question = 'Do you remember your teacher\'s name on your first day of school?';
+      question =
+          'Do you remember your teacher\'s name on your first day of school?';
       target = 'School';
     } else if (memory.taggedPeople.isNotEmpty) {
       final person = memory.taggedPeople.first;

@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// The category of a node in the memory relationship graph
-enum RelationshipNodeType {
-  person,
-  place,
-  event,
-}
+enum RelationshipNodeType { person, place, event }
 
 /// A node representing an entity in the patient's life story
 class RelationshipNode {
@@ -15,7 +11,8 @@ class RelationshipNode {
   final RelationshipNodeType type;
   final int memoryCount;
   final int linkedCount; // linked places or people
-  final Offset relativePosition; // Normalized position (-1.0 to 1.0) from graph center
+  final Offset
+  relativePosition; // Normalized position (-1.0 to 1.0) from graph center
   final String? avatarKey;
   final List<String> linkedMemoryIds;
 

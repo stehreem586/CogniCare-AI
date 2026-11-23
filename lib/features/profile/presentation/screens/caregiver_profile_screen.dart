@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../app/routes.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_loader.dart';
-import '../../../../core/widgets/cognicare_bottom_bar.dart';
 import '../../../../services/auth_state_service.dart';
 import '../../../authentication/data/repositories/auth_repository_impl.dart';
 import '../../data/models/user_profile.dart';
@@ -18,7 +17,6 @@ class CaregiverProfileScreen extends StatefulWidget {
 }
 
 class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
-  int _selectedBottomIndex = 1;
   bool _isLoading = true;
   UserProfile? _profile;
 
@@ -158,10 +156,14 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
                         title: 'Caregiver Dashboard',
                         subtitle: 'Manage linked patients and health status',
                         onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.caregiverDashboard,
-                          );
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          } else {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              AppRoutes.caregiverDashboard,
+                            );
+                          }
                         },
                       ),
                       const SizedBox(height: 16),
@@ -193,14 +195,6 @@ class _CaregiverProfileScreenState extends State<CaregiverProfileScreen> {
                 ),
               ),
             ),
-      bottomNavigationBar: CogniCareBottomBar(
-        currentIndex: _selectedBottomIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedBottomIndex = index;
-          });
-        },
-      ),
     );
   }
 }

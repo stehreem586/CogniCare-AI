@@ -16,7 +16,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   final FirebaseFirestore _firestore;
 
   UserRemoteDataSourceImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<void> createUserProfile(AppUser user) async {
@@ -29,6 +29,17 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
           .doc(user.uid)
           .set(userMap, SetOptions(merge: true));
 
+      // Keep the email lookup separate from the protected user profile. This
+      // lets a caregiver find a patient without exposing patient documents.
+      await _firestore
+          .collection(FirestoreConstants.userLookupCollection)
+          .doc(user.email.trim().toLowerCase())
+          .set({
+            FirestoreConstants.fieldUid: user.uid,
+            FirestoreConstants.fieldEmail: user.email.trim().toLowerCase(),
+            FirestoreConstants.fieldRole: user.role,
+          }, SetOptions(merge: true));
+
       // If patient, initialize default empty health profile document
       if (user.role == 'patient') {
         await _firestore
@@ -37,11 +48,11 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
             .collection(FirestoreConstants.healthProfileSubcollection)
             .doc(FirestoreConstants.healthProfileDocId)
             .set({
-          FirestoreConstants.fieldDementiaStage: 'Mild',
-          FirestoreConstants.fieldMedicalHistory: '',
-          FirestoreConstants.fieldCareNotes: '',
-          FirestoreConstants.fieldUpdatedAt: FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+              FirestoreConstants.fieldDementiaStage: 'Mild',
+              FirestoreConstants.fieldMedicalHistory: '',
+              FirestoreConstants.fieldCareNotes: '',
+              FirestoreConstants.fieldUpdatedAt: FieldValue.serverTimestamp(),
+            }, SetOptions(merge: true));
       }
     } catch (e) {
       debugPrint('Firestore error during profile creation: $e');
@@ -60,7 +71,20 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      return AppUser.fromMap(doc.data()!, doc.id);
+      final appUser = AppUser.fromMap(doc.data()!, doc.id);
+
+      // Backfill the lookup entry for accounts created before the lookup
+      // collection was introduced.
+      await _firestore
+          .collection(FirestoreConstants.userLookupCollection)
+          .doc(appUser.email.trim().toLowerCase())
+          .set({
+            FirestoreConstants.fieldUid: appUser.uid,
+            FirestoreConstants.fieldEmail: appUser.email.trim().toLowerCase(),
+            FirestoreConstants.fieldRole: appUser.role,
+          }, SetOptions(merge: true));
+
+      return appUser;
     } catch (e) {
       throw AppException.fromFirebaseException(e);
     }
@@ -91,7 +115,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
           : FirebaseAuth.instance.currentUser?.uid;
 
       if (targetUid == null || targetUid.isEmpty) {
-        throw const AppException('User ID is missing. Cannot update user profile.');
+        throw const AppException(
+          'User ID is missing. Cannot update user profile.',
+        );
       }
 
       final userMap = user.copyWith(uid: targetUid).toMap();

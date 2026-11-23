@@ -4,7 +4,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/utils/snackbar_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/cognicare_bottom_bar.dart';
@@ -41,9 +40,8 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
       _caregiverName = user.displayName ?? 'Caregiver';
 
       try {
-        final patients = await CaregiverRepositoryImpl().getLinkedPatientProfiles(
-          caregiverId: _caregiverId,
-        );
+        final patients = await CaregiverRepositoryImpl()
+            .getLinkedPatientProfiles(caregiverId: _caregiverId);
         if (mounted) {
           setState(() {
             _linkedPatients = patients;
@@ -78,7 +76,9 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               title: const Text('Link Patient'),
               content: Form(
                 key: formKey,
@@ -87,7 +87,10 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                   children: [
                     const Text(
                       'Enter the registered patient\'s email address to request access.',
-                      style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     AppTextField(
@@ -103,7 +106,9 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
               ),
               actions: [
                 TextButton(
-                  onPressed: isLinking ? null : () => Navigator.pop(dialogContext),
+                  onPressed: isLinking
+                      ? null
+                      : () => Navigator.pop(dialogContext),
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
@@ -116,10 +121,11 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                             });
 
                             try {
-                              await CaregiverRepositoryImpl().linkPatientByEmail(
-                                caregiverId: _caregiverId,
-                                patientEmail: emailController.text.trim(),
-                              );
+                              await CaregiverRepositoryImpl()
+                                  .linkPatientByEmail(
+                                    caregiverId: _caregiverId,
+                                    patientEmail: emailController.text.trim(),
+                                  );
 
                               if (dialogContext.mounted) {
                                 SnackbarUtils.showSuccess(
@@ -138,8 +144,13 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                               });
 
                               if (dialogContext.mounted) {
-                                final err = AppException.fromFirebaseException(e);
-                                SnackbarUtils.showError(dialogContext, err.message);
+                                final err = AppException.fromFirebaseException(
+                                  e,
+                                );
+                                SnackbarUtils.showError(
+                                  dialogContext,
+                                  err.message,
+                                );
                               }
                             }
                           }
@@ -148,7 +159,10 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Text('Link Patient'),
                 ),
@@ -164,7 +178,9 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
     await AuthRepositoryImpl().signOut();
     AuthStateService.instance.setCurrentUser(null);
     if (!mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
   }
 
   @override
@@ -201,7 +217,11 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                         const CircleAvatar(
                           radius: 26,
                           backgroundColor: AppColors.primaryLight,
-                          child: Icon(Icons.support_agent_rounded, color: AppColors.primary, size: 30),
+                          child: Icon(
+                            Icons.support_agent_rounded,
+                            color: AppColors.primary,
+                            size: 30,
+                          ),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -229,84 +249,12 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 18),
-
-                    // Life Story Hub (Module 4) Quick Action Banner
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, AppRoutes.lifeStoryHub);
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xFF0F325E),
-                              Color(0xFF1E70B8),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF0F325E).withValues(alpha: 0.25),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.18),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.auto_stories_rounded,
-                                color: Colors.white,
-                                size: 26,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Life Story & Memories',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.5,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: -0.2,
-                                    ),
-                                  ),
-                                  SizedBox(height: 3),
-                                  Text(
-                                    'Upload & tag personal photos, events & people',
-                                    style: TextStyle(
-                                      color: Color(0xFFBFDBFE),
-                                      fontSize: 12.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ],
-                        ),
-                      ),
+                    const SizedBox(height: 20),
+                    _CaregiverWelcomeHero(
+                      caregiverName: _caregiverName,
+                      linkedPatientCount: _linkedPatients.length,
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -334,17 +282,17 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                     const SizedBox(height: 16),
                     Expanded(
                       child: _linkedPatients.isEmpty
-                          ? Center(
+                          ? const Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.people_outline_rounded,
                                     size: 64,
                                     color: AppColors.textMuted,
                                   ),
-                                  const SizedBox(height: 12),
-                                  const Text(
+                                  SizedBox(height: 12),
+                                  Text(
                                     'No linked patients yet.',
                                     style: TextStyle(
                                       color: AppColors.textSecondary,
@@ -352,8 +300,8 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  const Text(
+                                  SizedBox(height: 8),
+                                  Text(
                                     'Click "Link Patient" above to link a patient by email.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -361,19 +309,14 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
                                       fontSize: 13.5,
                                     ),
                                   ),
-                                  const SizedBox(height: 20),
-                                  AppButton(
-                                    text: 'Link Patient Now',
-                                    onPressed: _showLinkPatientDialog,
-                                    icon: const Icon(Icons.link),
-                                  ),
                                 ],
                               ),
                             )
                           : ListView.separated(
                               physics: const BouncingScrollPhysics(),
                               itemCount: _linkedPatients.length,
-                              separatorBuilder: (context, index) => const SizedBox(height: 14),
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 14),
                               itemBuilder: (context, index) {
                                 final patient = _linkedPatients[index];
                                 return PatientSummaryCard(
@@ -397,15 +340,150 @@ class _CaregiverDashboardState extends State<CaregiverDashboard> {
             ),
       bottomNavigationBar: CogniCareBottomBar(
         currentIndex: _selectedBottomIndex,
-        onTap: (index) {
+        isCaregiver: true,
+        onTap: (index) async {
           if (index == 1) {
-            Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+            await Navigator.pushNamed(context, AppRoutes.caregiverProfile);
+            if (mounted) {
+              setState(() {
+                _selectedBottomIndex = 0;
+              });
+            }
           } else {
             setState(() {
               _selectedBottomIndex = index;
             });
           }
         },
+      ),
+    );
+  }
+}
+
+class _CaregiverWelcomeHero extends StatelessWidget {
+  const _CaregiverWelcomeHero({
+    required this.caregiverName,
+    required this.linkedPatientCount,
+  });
+
+  final String caregiverName;
+  final int linkedPatientCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final patientLabel = linkedPatientCount == 1 ? 'patient' : 'patients';
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 150),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFEAF5FF), Color(0xFFF2FBF8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -28,
+              top: -42,
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 34,
+              bottom: -54,
+              child: Container(
+                width: 118,
+                height: 118,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.brandTeal.withValues(alpha: 0.10),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'A little care goes a long way',
+                          style: TextStyle(
+                            color: AppColors.titleNavy,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          'Have a meaningful day, $caregiverName. Your support helps every memory matter.',
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 13,
+                            height: 1.35,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '$linkedPatientCount linked $patientLabel',
+                          style: const TextStyle(
+                            color: AppColors.brandTeal,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 88,
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.10),
+                          blurRadius: 14,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Icon(
+                          Icons.favorite_rounded,
+                          size: 48,
+                          color: AppColors.brandTeal.withValues(alpha: 0.18),
+                        ),
+                        const Icon(
+                          Icons.volunteer_activism_rounded,
+                          size: 38,
+                          color: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

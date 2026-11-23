@@ -4,11 +4,13 @@ import '../constants/app_colors.dart';
 class CogniCareBottomBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int>? onTap;
+  final bool isCaregiver;
 
   const CogniCareBottomBar({
     super.key,
-    this.currentIndex = 1, // Default selected tab is Profile (index 1)
+    this.currentIndex = 0,
     this.onTap,
+    this.isCaregiver = false,
   });
 
   @override
@@ -36,32 +38,47 @@ class CogniCareBottomBar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                index: 0,
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_rounded,
-                label: 'Home',
-              ),
-              _buildNavItem(
-                index: 1,
-                icon: Icons.person_outline_rounded,
-                activeIcon: Icons.person_rounded,
-                label: 'Profile',
-              ),
-              _buildNavItem(
-                index: 2,
-                icon: Icons.sports_esports_outlined,
-                activeIcon: Icons.sports_esports_rounded,
-                label: 'Games',
-              ),
-              _buildNavItem(
-                index: 3,
-                icon: Icons.grid_view_rounded,
-                activeIcon: Icons.grid_view_rounded,
-                label: 'More',
-              ),
-            ],
+            children: isCaregiver
+                ? [
+                    _buildNavItem(
+                      index: 0,
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home_rounded,
+                      label: 'Home',
+                    ),
+                    _buildNavItem(
+                      index: 1,
+                      icon: Icons.person_outline_rounded,
+                      activeIcon: Icons.person_rounded,
+                      label: 'Profile',
+                    ),
+                  ]
+                : [
+                    _buildNavItem(
+                      index: 0,
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home_rounded,
+                      label: 'Home',
+                    ),
+                    _buildNavItem(
+                      index: 1,
+                      icon: Icons.person_outline_rounded,
+                      activeIcon: Icons.person_rounded,
+                      label: 'Profile',
+                    ),
+                    _buildNavItem(
+                      index: 2,
+                      icon: Icons.sports_esports_outlined,
+                      activeIcon: Icons.sports_esports_rounded,
+                      label: 'Games',
+                    ),
+                    _buildNavItem(
+                      index: 3,
+                      icon: Icons.grid_view_rounded,
+                      activeIcon: Icons.grid_view_rounded,
+                      label: 'More',
+                    ),
+                  ],
           ),
         ),
       ),
