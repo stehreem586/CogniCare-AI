@@ -26,7 +26,7 @@ service cloud.firestore {
       // Legacy accounts may not have a userLookup record yet. Restrict this
       // compatibility query to documents explicitly filtered as patients.
       allow list: if isSignedIn() && resource.data.role == 'patient';
-      allow update: if ownsPatientData(userId);
+      allow update: if ownsPatientData(userId) || isAuthorizedCaregiverFor(userId);
       allow delete: if ownsPatientData(userId);
 
       match /healthProfile/{documentId} {

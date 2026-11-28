@@ -118,11 +118,26 @@ class CaregiverRemoteDataSourceImpl implements CaregiverRemoteDataSource {
       }
       final profileMap = profile.toMap();
       profileMap['updatedAt'] = FieldValue.serverTimestamp();
+      profileMap['name'] = profile.name.trim();
+      profileMap['displayName'] = profile.name.trim();
+      profileMap['fullName'] = profile.name.trim();
 
       await _firestore
           .collection(FirestoreConstants.usersCollection)
           .doc(profile.uid)
           .set(profileMap, SetOptions(merge: true));
+
+      if (profile.email.isNotEmpty) {
+        try {
+          await _firestore
+              .collection(FirestoreConstants.userLookupCollection)
+              .doc(profile.email.trim().toLowerCase())
+              .set({
+                FirestoreConstants.fieldName: profile.name.trim(),
+                FirestoreConstants.fieldPhone: profile.phone,
+              }, SetOptions(merge: true));
+        } catch (_) {}
+      }
     } catch (e) {
       throw AppException.fromFirebaseException(e);
     }

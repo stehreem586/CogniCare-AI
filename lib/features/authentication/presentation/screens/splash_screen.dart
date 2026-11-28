@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     try {
       final user = await AuthRepositoryImpl().getCurrentUser().timeout(
-        const Duration(seconds: 2),
+        const Duration(seconds: 6),
         onTimeout: () => null,
       );
       if (!mounted) return;
