@@ -68,11 +68,35 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       final profileMap = profile.copyWith(uid: targetUid).toMap();
       profileMap['updatedAt'] = FieldValue.serverTimestamp();
+      profileMap['name'] = profile.name.trim();
+      profileMap['displayName'] = profile.name.trim();
+      profileMap['fullName'] = profile.name.trim();
 
       await _firestore
           .collection(FirestoreConstants.usersCollection)
           .doc(targetUid)
           .set(profileMap, SetOptions(merge: true));
+
+      // Also sync display name to Firebase Auth if updating current user
+      final currentAuthUser = FirebaseAuth.instance.currentUser;
+      if (currentAuthUser != null && currentAuthUser.uid == targetUid) {
+        try {
+          await currentAuthUser.updateDisplayName(profile.name.trim());
+        } catch (_) {}
+      }
+
+      // Also sync name/phone to userLookup collection
+      if (profile.email.isNotEmpty) {
+        try {
+          await _firestore
+              .collection(FirestoreConstants.userLookupCollection)
+              .doc(profile.email.trim().toLowerCase())
+              .set({
+                FirestoreConstants.fieldName: profile.name.trim(),
+                FirestoreConstants.fieldPhone: profile.phone,
+              }, SetOptions(merge: true));
+        } catch (_) {}
+      }
     } catch (e) {
       throw AppException.fromFirebaseException(e);
     }

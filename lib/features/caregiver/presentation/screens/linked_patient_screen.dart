@@ -31,7 +31,7 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
           ModalRoute.of(context)?.settings.arguments as UserProfile?;
       _patient = routeArg ?? widget.patientProfile;
       if (_patient != null) {
-        _loadPatientHealthData();
+        _loadPatientData();
       } else {
         setState(() {
           _isLoading = false;
@@ -40,14 +40,20 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
     }
   }
 
-  Future<void> _loadPatientHealthData() async {
+  Future<void> _loadPatientData() async {
     if (_patient == null) return;
     try {
+      final updatedProfile = await CaregiverRepositoryImpl().getPatientProfile(
+        patientId: _patient!.uid,
+      );
       final health = await CaregiverRepositoryImpl().getPatientHealthProfile(
         patientId: _patient!.uid,
       );
       if (mounted) {
         setState(() {
+          if (updatedProfile != null) {
+            _patient = updatedProfile;
+          }
           _healthProfile = health;
           _isLoading = false;
         });
@@ -59,6 +65,21 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
         });
       }
     }
+  }
+
+  Future<void> _navigateToEditPatientProfile() async {
+    if (_patient == null) return;
+    final updated = await Navigator.pushNamed(
+      context,
+      AppRoutes.editPatientProfile,
+      arguments: _patient,
+    );
+    if (updated is UserProfile && mounted) {
+      setState(() {
+        _patient = updated;
+      });
+    }
+    await _loadPatientData();
   }
 
   @override
@@ -129,6 +150,11 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
                                     ),
                                   ],
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
+                                tooltip: 'Edit Patient Profile',
+                                onPressed: _navigateToEditPatientProfile,
                               ),
                             ],
                           ),
@@ -284,16 +310,31 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
                     const SizedBox(height: 24),
 
                     // Action Buttons for Caregiver
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _navigateToEditPatientProfile,
+                        icon: const Icon(Icons.edit_note_rounded),
+                        label: const Text('Edit Patient Profile Details'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: const BorderSide(color: AppColors.primary),
+                          foregroundColor: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.pushNamed(
+                            onPressed: () async {
+                              await Navigator.pushNamed(
                                 context,
                                 AppRoutes.healthProfile,
                                 arguments: _patient!.uid,
                               );
+                              await _loadPatientData();
                             },
                             icon: const Icon(Icons.health_and_safety_outlined),
                             label: const Text('Update Health'),
@@ -306,12 +347,13 @@ class _LinkedPatientScreenState extends State<LinkedPatientScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: () {
-                              Navigator.pushNamed(
+                            onPressed: () async {
+                              await Navigator.pushNamed(
                                 context,
                                 AppRoutes.emergencyContacts,
                                 arguments: _patient!.uid,
                               );
+                              await _loadPatientData();
                             },
                             icon: const Icon(Icons.contact_phone_outlined),
                             label: const Text('Emergency Contacts'),

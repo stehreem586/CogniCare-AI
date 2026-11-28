@@ -41,6 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   UserRole _selectedRole = UserRole.patient;
   bool _isLoading = false;
+  bool _roleInitialized = false;
 
   @override
   void initState() {
@@ -53,6 +54,22 @@ class _SignupScreenState extends State<SignupScreen> {
     _authRepository = widget.authRepository ?? AuthRepositoryImpl();
     if (widget.initialRole != null) {
       _selectedRole = widget.initialRole!;
+      _roleInitialized = true;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_roleInitialized) {
+      final routeArg = ModalRoute.of(context)?.settings.arguments;
+      if (routeArg is UserRole) {
+        _selectedRole = routeArg;
+        _roleInitialized = true;
+      } else if (routeArg is String) {
+        _selectedRole = UserRole.fromString(routeArg);
+        _roleInitialized = true;
+      }
     }
   }
 
@@ -80,7 +97,7 @@ class _SignupScreenState extends State<SignupScreen> {
           name: _nameController.text.trim(),
           role: roleStr,
         ).timeout(
-          const Duration(seconds: 10),
+          const Duration(seconds: 30),
           onTimeout: () {
             throw const AppException('Request timed out. Please check your internet connection.');
           },
@@ -100,7 +117,7 @@ class _SignupScreenState extends State<SignupScreen> {
               );
               await ProfileRepositoryImpl()
                   .updateUserProfile(profile: userProfile)
-                  .timeout(const Duration(seconds: 4), onTimeout: () {});
+                  .timeout(const Duration(seconds: 15), onTimeout: () {});
             } catch (_) {}
           }
 

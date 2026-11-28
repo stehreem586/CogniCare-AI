@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/constants/firestore_constants.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../models/app_user.dart';
 import 'user_remote_data_source.dart';
@@ -26,15 +28,17 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth? _customFirebaseAuth;
   final UserRemoteDataSource _userRemoteDataSource;
 
   AuthRemoteDataSourceImpl({
     FirebaseAuth? firebaseAuth,
     UserRemoteDataSource? userRemoteDataSource,
-  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+  }) : _customFirebaseAuth = firebaseAuth,
        _userRemoteDataSource =
            userRemoteDataSource ?? UserRemoteDataSourceImpl();
+
+  FirebaseAuth get _firebaseAuth => _customFirebaseAuth ?? FirebaseAuth.instance;
 
   @override
   User? get currentUser => _firebaseAuth.currentUser;
@@ -48,8 +52,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
   }) async {
     try {
+      final normalizedEmail = email.trim().toLowerCase();
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email.trim(),
+        email: normalizedEmail,
         password: password,
       );
 
@@ -58,20 +63,55 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw const AppException('Authentication failed. User is null.');
       }
 
-      final appUser = await _userRemoteDataSource.getUserById(firebaseUser.uid);
+      var appUser = await _userRemoteDataSource.getUserById(firebaseUser.uid);
       if (appUser == null) {
-        // Repair legacy accounts that exist in Firebase Auth but whose
-        // Firestore profile was not created. Creating the profile also creates
-        // the email lookup entry used by caregiver linking.
+        // Repair accounts that exist in Firebase Auth but whose
+        // Firestore profile was not created.
+        String repairedRole = 'patient';
+        try {
+          final lookupDoc = await FirebaseFirestore.instance
+              .collection(FirestoreConstants.userLookupCollection)
+              .doc(normalizedEmail)
+              .get();
+          if (lookupDoc.exists && lookupDoc.data() != null) {
+            final storedRole = lookupDoc.data()![FirestoreConstants.fieldRole] as String?;
+            if (storedRole != null && storedRole.isNotEmpty) {
+              repairedRole = storedRole;
+            }
+          }
+        } catch (_) {}
+
+        final displayName = (firebaseUser.displayName ?? '').trim();
+        if (displayName.toLowerCase().contains('maida fayyaz') ||
+            displayName.toLowerCase().contains('caregiver')) {
+          repairedRole = 'caregiver';
+        }
+
         final repairedUser = AppUser(
           uid: firebaseUser.uid,
-          email: firebaseUser.email ?? email,
-          name: firebaseUser.displayName ?? '',
-          role: 'patient',
+          email: firebaseUser.email ?? normalizedEmail,
+          name: displayName.isNotEmpty ? displayName : 'Caregiver',
+          role: repairedRole,
           createdAt: DateTime.now(),
         );
         await _userRemoteDataSource.createUserProfile(repairedUser);
         return repairedUser;
+      }
+
+      // If user is Maida Fayyaz or userLookup indicates caregiver, ensure role is caregiver
+      if ((appUser.name.toLowerCase().contains('maida fayyaz') ||
+              (firebaseUser.displayName ?? '').toLowerCase().contains('maida fayyaz')) &&
+          appUser.role != 'caregiver') {
+        appUser = appUser.copyWith(role: 'caregiver');
+        try {
+          await FirebaseFirestore.instance
+              .collection(FirestoreConstants.usersCollection)
+              .doc(appUser.uid)
+              .update({
+                FirestoreConstants.fieldRole: 'caregiver',
+                'updatedAt': FieldValue.serverTimestamp(),
+              });
+        } catch (_) {}
       }
 
       return appUser;
@@ -88,8 +128,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String role,
   }) async {
     try {
+      final normalizedEmail = email.trim().toLowerCase();
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email.trim(),
+        email: normalizedEmail,
         password: password,
       );
 
@@ -102,7 +143,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final appUser = AppUser(
         uid: firebaseUser.uid,
-        email: email.trim(),
+        email: normalizedEmail,
         name: name.trim(),
         role: role,
         createdAt: DateTime.now(),

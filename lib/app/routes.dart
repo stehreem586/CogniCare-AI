@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/constants/role_constants.dart';
 import '../features/authentication/presentation/screens/splash_screen.dart';
 import '../features/authentication/presentation/screens/role_selection_screen.dart';
 import '../features/authentication/presentation/screens/login_screen.dart';
@@ -48,7 +49,16 @@ class AppRoutes {
     splash: (context) => const SplashScreen(),
     roleSelection: (context) => const RoleSelectionScreen(),
     login: (context) => const LoginScreen(),
-    signup: (context) => const SignupScreen(),
+    signup: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      UserRole? initialRole;
+      if (args is UserRole) {
+        initialRole = args;
+      } else if (args is String) {
+        initialRole = UserRole.fromString(args);
+      }
+      return SignupScreen(initialRole: initialRole);
+    },
     forgotPassword: (context) => const ForgotPasswordScreen(),
     patientProfile: (context) => const PatientProfileScreen(),
     caregiverProfile: (context) => const CaregiverProfileScreen(),
